@@ -49,7 +49,7 @@
       width: 100%;
       padding: 0.3rem;
     }
-    /* Toggle Switch (LOCK/UNLOCK) */
+    /* Toggle Switch (using text "LOCK"/"UNLOCK") */
     .switch {
       position: relative;
       display: inline-block;
@@ -236,9 +236,9 @@
       color: black;
       text-decoration: none;
     }
-    /* Manage Data Section (full-width) */
+    /* Manage Data Section: Full-width and responsive */
     #dataManagementSection {
-      /* Make this section span the full viewport width */
+      /* Span the full width of the viewport */
       position: relative;
       left: 50%;
       right: 50%;
@@ -255,10 +255,15 @@
       text-align: center;
       margin-bottom: 1rem;
     }
+    /* Flex container for the two buttons */
+    #buttonRow {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
     /* Toggle button now labeled "Show Full Program" */
     #toggleDataTableBtn {
-      display: block;
-      margin: 0 auto 1rem auto;
       padding: 0.5rem 1rem;
       background: #0288d1;
       color: white;
@@ -271,8 +276,6 @@
     }
     /* New "Add New Record" button */
     #addNewRecordBtn {
-      display: block;
-      margin: 0 auto 1rem auto;
       padding: 0.5rem 1rem;
       background: #00796b;
       color: white;
@@ -319,8 +322,7 @@
     .tableEditBtn:hover {
       background: #0277bd;
     }
-    /* NEW: Active column moved to the first column.
-       We'll render a checkbox there. */
+    /* Active column moved to first column */
     .activeCheckbox {
       width: 16px;
       height: 16px;
@@ -469,8 +471,10 @@
   <div id="dataManagementSection">
     <hr/>
     <h2>Manage Data</h2>
-    <button id="toggleDataTableBtn">Show Full Program</button>
-    <button id="addNewRecordBtn">Add New Record</button>
+    <div id="buttonRow">
+      <button id="toggleDataTableBtn">Show Full Program</button>
+      <button id="addNewRecordBtn">Add New Record</button>
+    </div>
     <div id="dataTableContainer" style="display: none;">
       <table id="dataTable">
         <!-- Table is built dynamically -->
@@ -478,7 +482,7 @@
     </div>
   </div>
 
-  <!-- OLD Modal for Add/Edit (retained for legacy use) -->
+  <!-- OLD Modal for Add/Edit (retained) -->
   <div id="editModal" class="modal">
     <div class="modal-content">
       <span id="closeModal" class="close">&times;</span>
@@ -654,7 +658,6 @@
     const descriptionP = document.getElementById('selectedDescription');
     const priorList = document.getElementById('priorList');
 
-    // Populate the Content Area dropdown from appData keys.
     function populateContentAreas() {
       areaSelect.innerHTML = "";
       Object.keys(appData).forEach(area => {
@@ -664,7 +667,6 @@
         areaSelect.appendChild(opt);
       });
     }
-    // Update the Program dropdown.
     function updateProgramSelect() {
       const selectedArea = areaSelect.value;
       programSelect.innerHTML = "";
@@ -677,7 +679,6 @@
         });
       }
     }
-    // Update the Target dropdown – only include active targets.
     function updateTargetSelect() {
       const selectedArea = areaSelect.value;
       const selectedProgram = programSelect.value;
@@ -693,7 +694,6 @@
           });
       }
     }
-    // Update SD/Note fields.
     function updateInstructions() {
       const area = areaSelect.value;
       const prog = programSelect.value;
@@ -704,11 +704,9 @@
         notesArea.value = targetData.note;
       }
     }
-    // Update the descriptive text.
     function updateDescription() {
       descriptionP.textContent = areaSelect.value + ' -- ' + programSelect.value + ' -- ' + targetSelect.value;
     }
-    // Update the Prior Results list.
     function updatePriorResults() {
       const currentArea = areaSelect.value;
       const currentProgram = programSelect.value;
@@ -1126,7 +1124,7 @@
       const rows = tbody.querySelectorAll("tr");
       rows.forEach(row => {
         let show = true;
-        // Do not filter the last two columns (Active and Action) – adjust index accordingly.
+        // Do not filter the first (Active) and last (Action) columns.
         for(let i = 1; i < row.children.length - 1; i++){
           const cellText = row.children[i].textContent.toLowerCase();
           if(filters[i+1] && !cellText.includes(filters[i+1])){
@@ -1334,3 +1332,4 @@
   
 </body>
 </html>
+
