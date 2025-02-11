@@ -21,12 +21,10 @@
       margin: 0 auto;
       padding: 1rem;
     }
-
     /* Top section hidden by default */
     #topSection {
       display: none;
     }
-
     /* Dropdowns layout */
     .dropdowns {
       display: flex;
@@ -45,7 +43,7 @@
       margin-bottom: 0.3rem;
     }
     .dropdown-label-and-toggle .switch {
-      order: 1; /* Switch on left */
+      order: 1;
     }
     .dropdown-label-and-toggle label:not(.switch) {
       order: 2;
@@ -55,10 +53,7 @@
       width: 100%;
       padding: 0.3rem;
     }
-
-    /********************************************************
-     * Toggle Switch: Using text "LOCK" / "UNLOCK"
-     ********************************************************/
+    /* Toggle Switch (using text "LOCK"/"UNLOCK") */
     .switch {
       position: relative;
       display: inline-block;
@@ -89,7 +84,7 @@
       font-size: 10px;
       font-family: Arial, sans-serif;
       color: #000;
-      content: 'UNLOCK';  /* default when unchecked */
+      content: 'UNLOCK';
       transition: 0.4s;
     }
     input:checked + .slider {
@@ -99,7 +94,6 @@
       content: 'LOCK';
       transform: translateX(14px);
     }
-
     /* Instructions / SD & Notes */
     .instructions {
       display: flex;
@@ -139,7 +133,6 @@
       margin-bottom: 1rem;
       resize: vertical;
     }
-
     /* Two-column layout for trial result buttons */
     .trial-results {
       display: flex;
@@ -178,7 +171,6 @@
     .trial-results label:hover {
       opacity: 0.9;
     }
-
     /* Prior results (history) */
     .prior-results {
       margin-bottom: 1rem;
@@ -196,7 +188,6 @@
       padding: 0.4rem;
       border-radius: 4px;
     }
-    /* Same color classes for history */
     .verbal { background-color: #fff9c4; }
     .prompted { background-color: #fff9c4; }
     .modeling { background-color: #fff9c4; }
@@ -205,14 +196,11 @@
     .full-physical { background-color: #fff9c4; }
     .independent { background-color: #c8f7c5; }
     .incorrect { background-color: #ffcdd2; }
-
-    /********************************************************
-     * Modal Styles for Add/Edit Interface
-     ********************************************************/
+    /* Modal Styles for Add/Edit Interface */
     .modal {
-      display: none; 
-      position: fixed; 
-      z-index: 1000; 
+      display: none;
+      position: fixed;
+      z-index: 1000;
       left: 0; top: 0;
       width: 100%; height: 100%;
       overflow: auto;
@@ -578,29 +566,34 @@
      * based on the effective lock settings.
      *
      * Hierarchy:
-     * - If target is locked, do nothing (the entire branch is fixed).
-     * - Else if program is locked, randomize only the target.
-     * - Else if content area is locked, randomize program (within the locked content area)
-     *   and then randomize target.
-     * - Else (nothing locked) randomize content area, then program, then target.
+     * - If the target is locked, nothing changes.
+     * - Else if the program is locked (but target is unlocked),
+     *   randomize only the target.
+     * - Else if the content area is locked (and program and target are unlocked),
+     *   randomize the program (within that area) then randomize the target.
+     * - Else (nothing is locked), randomize content area, then program, then target.
      ********************************************************/
     function randomizeTrialData() {
       const lockArea = document.getElementById('lockContentArea').checked;
       const lockProg = document.getElementById('lockProgram').checked;
       const lockTarg = document.getElementById('lockTarget').checked;
 
+      // If the target is locked, do nothing.
       if (lockTarg) {
-        // If target is locked, do nothing.
-      } else if (lockProg) {
-        // Program is locked; leave program (and its inherent content area) unchanged,
-        // and randomize only the target.
+        // Branch is completely fixed.
+        // (You may add a console.log for debugging if needed.)
+      }
+      // If the program is locked (but target is unlocked), randomize target only.
+      else if (lockProg) {
         const selectedArea = areaSelect.value;
         const selectedProg = programSelect.value;
         const targets = Object.keys(appData[selectedArea].programs[selectedProg].targets);
         const randomIndex = Math.floor(Math.random() * targets.length);
         targetSelect.value = targets[randomIndex];
-      } else if (lockArea) {
-        // Content area is locked; randomize program (within that area) and then target.
+      }
+      // If the content area is locked (and program and target are unlocked),
+      // randomize program (within that fixed area) then target.
+      else if (lockArea) {
         const lockedArea = areaSelect.value;
         const programs = Object.keys(appData[lockedArea].programs);
         const randomIndexProg = Math.floor(Math.random() * programs.length);
@@ -610,8 +603,9 @@
         const targets = Object.keys(appData[lockedArea].programs[selectedProg].targets);
         const randomIndexTarget = Math.floor(Math.random() * targets.length);
         targetSelect.value = targets[randomIndexTarget];
-      } else {
-        // None are locked; randomize content area, then program, then target.
+      }
+      // If nothing is locked, randomize all three.
+      else {
         const areas = Object.keys(appData);
         const randomIndexArea = Math.floor(Math.random() * areas.length);
         areaSelect.value = areas[randomIndexArea];
@@ -748,7 +742,7 @@
         editSD.disabled = true;
         editNote.disabled = true;
       } else if (editType === "program") {
-        editContentArea.disabled = true; // content area is fixed
+        editContentArea.disabled = true;
         editProgram.disabled = false;
         editTarget.disabled = true;
         editSD.disabled = true;
@@ -761,7 +755,6 @@
         editNote.disabled = false;
       }
     }
-
     // Build the hierarchical tree view of appData inside the modal
     function updateDataTree() {
       const treeDiv = document.getElementById('dataTree');
@@ -800,7 +793,6 @@
         treeDiv.appendChild(areaDiv);
       });
     }
-
     // Handler for form submission (Add/Edit)
     editForm.addEventListener('submit', function(e) {
       e.preventDefault();
@@ -815,7 +807,6 @@
         if (mode === "edit") {
           const origArea = originalAreaField.value;
           if (origArea !== newArea) {
-            // Rename: copy and delete old key
             appData[newArea] = appData[origArea];
             delete appData[origArea];
           }
@@ -834,7 +825,6 @@
           }
         }
       } else if (type === "target") {
-        // For targets, create content area and program if necessary
         if (!appData[newArea]) {
           appData[newArea] = { programs: {} };
         }
@@ -850,13 +840,11 @@
             note: newNote
           };
         } else if (mode === "edit") {
-          // Remove the old target if keys have changed
           const origArea = originalAreaField.value;
           const origProg = originalProgramField.value;
           const origTarget = originalTargetField.value;
           if (origArea && origProg && origTarget) {
             delete appData[origArea].programs[origProg].targets[origTarget];
-            // Clean up empty program/content area if desired
             if (Object.keys(appData[origArea].programs[origProg].targets).length === 0) {
               delete appData[origArea].programs[origProg];
               if (Object.keys(appData[origArea].programs).length === 0) {
@@ -864,7 +852,6 @@
               }
             }
           }
-          // Add the (possibly new) target
           if (!appData[newArea]) {
             appData[newArea] = { programs: {} };
           }
@@ -877,7 +864,6 @@
           };
         }
       }
-      // Update the main interface dropdowns and tree view
       populateContentAreas();
       updateProgramSelect();
       updateTargetSelect();
@@ -886,11 +872,9 @@
       updateDataTree();
       closeEditModal();
     });
-
     // Cancel button and close icon event listeners
     cancelEditBtn.addEventListener('click', closeEditModal);
     closeModalBtn.addEventListener('click', closeEditModal);
-
     // Event delegation for tree view buttons (Edit and Delete)
     document.getElementById('dataTree').addEventListener('click', function(e) {
       const targetEl = e.target;
@@ -919,7 +903,6 @@
         const prog = targetEl.getAttribute("data-program");
         if (confirm("Delete program and all its targets?")) {
           delete appData[area].programs[prog];
-          // Clean up if no programs remain
           if (Object.keys(appData[area].programs).length === 0) {
             delete appData[area];
           }
@@ -942,7 +925,6 @@
         const targ = targetEl.getAttribute("data-target");
         if (confirm("Delete target?")) {
           delete appData[area].programs[prog].targets[targ];
-          // Clean up empty program/content area if needed
           if (Object.keys(appData[area].programs[prog].targets).length === 0) {
             delete appData[area].programs[prog];
             if (Object.keys(appData[area].programs).length === 0) {
@@ -958,16 +940,13 @@
         }
       }
     });
-
     /********************************************************
      * "Add/Edit Program" button now opens the modal in add mode.
-     * (By default, we assume adding a new target record.)
+     * (By default, adding a new target record.)
      ********************************************************/
     document.getElementById('addEditProgramBtn').addEventListener('click', function() {
-      // Open modal in "add" mode for a target record.
       openEditModal("target", "add", {});
     });
-
     // Clicking outside the modal will also close it.
     window.addEventListener('click', function(e) {
       if (e.target == editModal) {
