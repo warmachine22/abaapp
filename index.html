@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Autism Data Collection Mockup</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    header h1 {
+      font-size: 1.2rem;
+    }
+
+    /* Drop-downs stacked vertically */
+    .dropdowns {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .dropdown-row {
+      display: flex;
+      flex-direction: column;
+    }
+    .dropdown-label-and-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.3rem;
+    }
+    /* We place the switch to the left, label on the right */
+    .dropdown-label-and-toggle .switch {
+      order: 1; /* Make sure switch is first */
+    }
+    .dropdown-label-and-toggle label:not(.switch) {
+      order: 2; /* The text label is second */
+      font-weight: bold;
+    }
+
+    .dropdown-row select {
+      width: 100%;
+      padding: 0.3rem;
+    }
+
+    /* Toggle switch styling */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 22px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #fff; /* White background */
+      border: 1px solid #ccc; /* Light border for visibility */
+      transition: 0.4s;
+      border-radius: 22px;
+    }
+    /* We will display a lock/unlock icon via :before content */
+    .slider:before {
+      position: absolute;
+      left: 4px;
+      top: 3px;
+      font-size: 14px;
+      /* Attempt to force black-and-white glyphs instead of color emojis */
+      font-family: "Segoe UI Symbol", "Apple Symbols", "Noto Sans Symbols", sans-serif;
+      color: #000;
+      content: '🔓';  /* unlocked icon by default */
+      transition: 0.4s;
+    }
+
+    input:checked + .slider {
+      background-color: #c8e6c9; /* light greenish background when "locked" */
+    }
+    /* Show locked icon when checked */
+    input:checked + .slider:before {
+      content: '🔒';
+      transform: translateX(16px);
+    }
+
+    /* SD & Notes stacked */
+    .instructions {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1rem;
+    }
+    .instructions label {
+      font-weight: bold;
+      margin-bottom: 0.25rem;
+    }
+    .instructions textarea {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      resize: vertical;
+    }
+
+    /* Two-column trial results */
+    .trial-results {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .trial-results .column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    /* Radio button label styles by result type */
+    /* Light yellow for "other," light green for "Independent," light red for "Incorrect" */
+    label.verbal,
+    label.prompted,
+    label.modeling,
+    label.gestural,
+    label.partialPhysical,
+    label.fullPhysical {
+      background-color: #fff9c4; /* light yellow */
+    }
+    label.independent {
+      background-color: #c8f7c5; /* light green */
+    }
+    label.incorrect {
+      background-color: #ffcdd2; /* light red */
+    }
+
+    /* Common styling for the labels */
+    .trial-results label {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .trial-results input[type="radio"] {
+      margin-right: 0.5rem;
+      transform: scale(1.2);
+    }
+    .trial-results label:hover {
+      opacity: 0.9; /* slight hover effect */
+    }
+
+    /* Prior results: single column (one under the other) */
+    .prior-results {
+      margin-bottom: 1rem;
+    }
+    .prior-results h2 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .prior-list {
+      list-style: none;
+    }
+    .prior-list li {
+      margin-bottom: 0.5rem;
+      padding: 0.4rem;
+      border-radius: 4px;
+    }
+    /* Prior results color scheme */
+    .verbal {
+      background-color: #fff9c4; /* yellow */
+    }
+    .prompted {
+      background-color: #fff9c4; /* yellow */
+    }
+    .modeling {
+      background-color: #fff9c4; /* yellow */
+    }
+    .gestural {
+      background-color: #fff9c4; /* yellow */
+    }
+    .partial-physical {
+      background-color: #fff9c4; /* yellow */
+    }
+    .full-physical {
+      background-color: #fff9c4; /* yellow */
+    }
+    .independent {
+      background-color: #c8f7c5; /* green */
+    }
+    .incorrect {
+      background-color: #ffcdd2; /* red */
+    }
+
+    /* Bottom - Random target info */
+    .random-section {
+      text-align: center;
+    }
+    .random-section p {
+      margin-bottom: 0.5rem;
+    }
+    .random-section button {
+      background: #0288d1;
+      color: #fff;
+      padding: 0.7rem 1.2rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .random-section button:hover {
+      background: #0277bd;
+    }
+
+    /* Responsive fallback for extremely narrow screens */
+    @media (max-width: 500px) {
+      .trial-results {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header / Child Name -->
+    <header>
+      <h1>Child Name: Joe Smith</h1>
+    </header>
+
+    <!-- Drop-downs stacked, each with a toggle switch on the left and label on the right -->
+    <div class="dropdowns">
+      <!-- Content Area -->
+      <div class="dropdown-row">
+        <div class="dropdown-label-and-toggle">
+          <label class="switch">
+            <input type="checkbox" id="lockContentArea" />
+            <span class="slider"></span>
+          </label>
+          <label for="contentAreaSelect">Content Area</label>
+        </div>
+        <select id="contentAreaSelect">
+          <option value="visual">Visual - Performance</option>
+          <option value="language">Language - Receptive</option>
+          <option value="social">Social Skills</option>
+        </select>
+      </div>
+
+      <!-- Program -->
+      <div class="dropdown-row">
+        <div class="dropdown-label-and-toggle">
+          <label class="switch">
+            <input type="checkbox" id="lockProgram" />
+            <span class="slider"></span>
+          </label>
+          <label for="programSelect">Program</label>
+        </div>
+        <select id="programSelect">
+          <option value="singlePuzzle">Single Puzzle</option>
+          <option value="matching">Matching</option>
+          <option value="imitation">Imitation</option>
+        </select>
+      </div>
+
+      <!-- Target -->
+      <div class="dropdown-row">
+        <div class="dropdown-label-and-toggle">
+          <label class="switch">
+            <input type="checkbox" id="lockTarget" />
+            <span class="slider"></span>
+          </label>
+          <label for="targetSelect">Target</label>
+        </div>
+        <select id="targetSelect">
+          <option value="puzzle1">Puzzle - 1 piece</option>
+          <option value="puzzle2">Puzzle - 2 pieces</option>
+          <option value="shapeSorting">Shape Sorting</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- SD & Notes stacked -->
+    <div class="instructions">
+      <label for="sdInput">SD (Instruction)</label>
+      <textarea id="sdInput" rows="4" 
+        placeholder='"Do the puzzle" while placing the piece...'></textarea>
+
+      <label for="notesArea">Note</label>
+      <textarea id="notesArea" rows="4" 
+        placeholder="Notes: Work Harder, Work Harder..."></textarea>
+    </div>
+
+    <!-- 2-column layout for trial result / prompt level -->
+    <div class="trial-results">
+      <div class="column">
+        <label class="verbal">
+          <input type="radio" name="trialResult" value="verbal" />
+          Verbal
+        </label>
+        <label class="prompted">
+          <input type="radio" name="trialResult" value="prompted" />
+          Prompted
+        </label>
+        <label class="modeling">
+          <input type="radio" name="trialResult" value="modeling" />
+          Modeling
+        </label>
+        <label class="independent">
+          <input type="radio" name="trialResult" value="independent" />
+          Independent
+        </label>
+      </div>
+      <div class="column">
+        <label class="gestural">
+          <input type="radio" name="trialResult" value="gestural" />
+          Gestural
+        </label>
+        <label class="partialPhysical">
+          <input type="radio" name="trialResult" value="partialPhysical" />
+          Partial Physical
+        </label>
+        <label class="fullPhysical">
+          <input type="radio" name="trialResult" value="fullPhysical" />
+          Full Physical
+        </label>
+        <label class="incorrect">
+          <input type="radio" name="trialResult" value="incorrect" />
+          Incorrect
+        </label>
+      </div>
+    </div>
+
+    <!-- Prior results (single column) -->
+    <div class="prior-results">
+      <h2>Prior Results</h2>
+      <ul class="prior-list">
+        <!-- Example usage of color classes: -->
+        <li class="independent">Independent</li>
+        <li class="verbal">Verbal</li>
+        <li class="incorrect">Incorrect</li>
+        <li class="incorrect">Incorrect</li>
+        <li class="independent">Independent</li>
+      </ul>
+    </div>
+
+    <!-- "Select Random" -->
+    <div class="random-section">
+      <p>Target 1 of 30</p>
+      <button id="selectRandomBtn">Select Random</button>
+    </div>
+  </div>
+
+  <!-- Minimal JavaScript for demonstration (not a real backend) -->
+  <script>
+    // Example: toggles do nothing except show locked vs unlocked visually
+    document.getElementById('selectRandomBtn').addEventListener('click', function() {
+      alert('Random target selected (mock)!');
+    });
+  </script>
+</body>
+</html>
+
