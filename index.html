@@ -11,15 +11,22 @@
       margin: 0;
       padding: 0;
     }
-    /* We'll keep a container for the main app (600px max-width) */
+    /* Main container (600px max-width for top portion) */
     .container {
       max-width: 600px;
       margin: 0 auto;
       padding: 1rem;
     }
-    /* Top section hidden by default */
-    #topSection {
-      display: none;
+    /* Child header at the top */
+    .child-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      justify-content: center;
+    }
+    .child-header label {
+      font-weight: bold;
     }
     /* Dropdowns layout */
     .dropdowns {
@@ -49,7 +56,7 @@
       width: 100%;
       padding: 0.3rem;
     }
-    /* Toggle Switch (using text "LOCK"/"UNLOCK") */
+    /* Toggle Switch */
     .switch {
       position: relative;
       display: inline-block;
@@ -90,13 +97,12 @@
       content: 'LOCK';
       transform: translateX(14px);
     }
-    /* Instructions / SD & Notes */
+    /* Instructions and SD/Notes */
     .instructions {
       display: flex;
       flex-direction: column;
       margin-bottom: 1rem;
     }
-    /* Descriptive text styling */
     #selectedDescription {
       font-size: 1.5em;
       text-align: center;
@@ -106,17 +112,12 @@
       border-radius: 5px;
       margin-bottom: 1rem;
     }
-    .chosen-description {
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-    }
     .desc-buttons {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
       margin-bottom: 1rem;
     }
-    /* Buttons in top section */
     .desc-buttons button {
       background: #0288d1;
       color: #fff;
@@ -140,7 +141,7 @@
       margin-bottom: 1rem;
       resize: vertical;
     }
-    /* Two-column layout for trial result buttons */
+    /* Trial Results */
     .trial-results {
       display: flex;
       flex-direction: row;
@@ -154,7 +155,6 @@
       flex-direction: column;
       gap: 0.5rem;
     }
-    /* Color coding for trial results */
     label.incorrect { background-color: #ffcdd2; }
     label.independent { background-color: #c8f7c5; }
     label.verbal,
@@ -178,7 +178,7 @@
     .trial-results label:hover {
       opacity: 0.9;
     }
-    /* Prior results (history) */
+    /* Prior Results */
     .prior-results {
       margin-bottom: 1rem;
     }
@@ -203,7 +203,7 @@
     .full-physical { background-color: #fff9c4; }
     .independent { background-color: #c8f7c5; }
     .incorrect { background-color: #ffcdd2; }
-    /* Modal Styles for the old add/edit interface (retained) */
+    /* Modal Styles (old modal retained) */
     .modal {
       display: none;
       position: fixed;
@@ -236,9 +236,8 @@
       color: black;
       text-decoration: none;
     }
-    /* Manage Data Section: Full-width and responsive */
+    /* Manage Data Section (full-width) */
     #dataManagementSection {
-      /* Span the full width of the viewport */
       position: relative;
       left: 50%;
       right: 50%;
@@ -255,14 +254,12 @@
       text-align: center;
       margin-bottom: 1rem;
     }
-    /* Flex container for the two buttons */
-    #buttonRow {
+    .data-buttons {
       display: flex;
       justify-content: center;
       gap: 1rem;
       margin-bottom: 1rem;
     }
-    /* Toggle button now labeled "Show Full Program" */
     #toggleDataTableBtn {
       padding: 0.5rem 1rem;
       background: #0288d1;
@@ -274,7 +271,6 @@
     #toggleDataTableBtn:hover {
       background: #0277bd;
     }
-    /* New "Add New Record" button */
     #addNewRecordBtn {
       padding: 0.5rem 1rem;
       background: #00796b;
@@ -310,6 +306,12 @@
       padding: 0.2rem;
       box-sizing: border-box;
     }
+    /* Active column (first column) */
+    .activeCheckbox {
+      width: 16px;
+      height: 16px;
+    }
+    /* Table column order: Child, Active, Content Area, Program, Target, SD, Note, Action */
     /* Style for Edit button in table */
     .tableEditBtn {
       padding: 0.3rem 0.5rem;
@@ -321,11 +323,6 @@
     }
     .tableEditBtn:hover {
       background: #0277bd;
-    }
-    /* Active column moved to first column */
-    .activeCheckbox {
-      width: 16px;
-      height: 16px;
     }
     /* NEW: Simple Edit Modal for Table Rows / Adding New Record */
     #simpleEditModal .modal-content {
@@ -360,42 +357,37 @@
 </head>
 <body>
   <div class="container">
-    <!-- Top section (child name and dropdowns) -->
+    <!-- Child Header -->
+    <div class="child-header">
+      <label for="childNameSelect">Child Name:</label>
+      <select id="childNameSelect"></select>
+      <label class="switch">
+        <input type="checkbox" id="lockChildName" checked />
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <!-- Top section (dropdowns for content area, program, target) -->
     <div id="topSection">
-      <header>
-        <h1>Child Name: Joe Smith</h1>
-      </header>
       <div class="dropdowns">
         <!-- Content Area -->
         <div class="dropdown-row">
           <div class="dropdown-label-and-toggle">
-            <label class="switch">
-              <input type="checkbox" id="lockContentArea" />
-              <span class="slider"></span>
-            </label>
-            <label for="contentAreaSelect">Content Area</label>
+            <label for="contentAreaSelect" style="font-weight: bold;">Content Area</label>
           </div>
           <select id="contentAreaSelect"></select>
         </div>
         <!-- Program -->
         <div class="dropdown-row">
           <div class="dropdown-label-and-toggle">
-            <label class="switch">
-              <input type="checkbox" id="lockProgram" />
-              <span class="slider"></span>
-            </label>
-            <label for="programSelect">Program</label>
+            <label for="programSelect" style="font-weight: bold;">Program</label>
           </div>
           <select id="programSelect"></select>
         </div>
         <!-- Target -->
         <div class="dropdown-row">
           <div class="dropdown-label-and-toggle">
-            <label class="switch">
-              <input type="checkbox" id="lockTarget" />
-              <span class="slider"></span>
-            </label>
-            <label for="targetSelect">Target</label>
+            <label for="targetSelect" style="font-weight: bold;">Target</label>
           </div>
           <select id="targetSelect"></select>
         </div>
@@ -471,7 +463,7 @@
   <div id="dataManagementSection">
     <hr/>
     <h2>Manage Data</h2>
-    <div id="buttonRow">
+    <div class="data-buttons">
       <button id="toggleDataTableBtn">Show Full Program</button>
       <button id="addNewRecordBtn">Add New Record</button>
     </div>
@@ -490,9 +482,13 @@
       <form id="editForm">
         <input type="hidden" id="editMode" value="add" />
         <input type="hidden" id="editType" value="target" />
+        <input type="hidden" id="originalChild" value="" />
         <input type="hidden" id="originalArea" value="" />
         <input type="hidden" id="originalProgram" value="" />
         <input type="hidden" id="originalTarget" value="" />
+        
+        <label for="editChild">Child Name</label>
+        <input type="text" id="editChild" required />
         
         <label for="editContentArea">Content Area</label>
         <input type="text" id="editContentArea" required />
@@ -528,11 +524,16 @@
       <form id="simpleEditForm">
         <!-- Hidden field to track mode ("edit" or "add") -->
         <input type="hidden" id="simpleEditMode" value="edit">
+        <input type="hidden" id="simpleOriginalChild" value="" />
         <input type="hidden" id="simpleOriginalArea" value="" />
         <input type="hidden" id="simpleOriginalProgram" value="" />
         <input type="hidden" id="simpleOriginalTarget" value="" />
         
         <!-- Use datalists for suggestions -->
+        <label for="simpleEditChild">Child Name</label>
+        <input type="text" id="simpleEditChild" list="childList" required />
+        <datalist id="childList"></datalist>
+        
         <label for="simpleEditContentArea">Content Area</label>
         <input type="text" id="simpleEditContentArea" list="contentAreaList" required />
         <datalist id="contentAreaList"></datalist>
@@ -551,9 +552,9 @@
         <label for="simpleEditNote">Note</label>
         <textarea id="simpleEditNote" required></textarea>
         
-        <!-- New checkbox for Active state -->
+        <!-- New checkbox for Active state (unchecked by default for adding new records) -->
         <label>
-          <input type="checkbox" id="simpleEditActive" checked />
+          <input type="checkbox" id="simpleEditActive" />
           Active
         </label>
         
@@ -565,77 +566,46 @@
 
   <script>
     /********************************************************
-     * SIMULATED DATA STRUCTURE
-     * Each target now includes an "active" property.
+     * Global Hierarchical Data Structure keyed by Child Name.
      ********************************************************/
     let appData = {
-      "Visual - Performance": {
-        programs: {
+      "Joe Smith": {
+        "Visual - Performance": {
           "Single Puzzle": {
-            targets: {
-              "Puzzle - 1 piece": {
-                sd: '"Do the puzzle" while placing the piece...',
-                note: 'Use both hands.',
-                active: true
-              },
-              "Puzzle - 2 pieces": {
-                sd: '"Do the puzzle" with two pieces...',
-                note: 'Encourage problem solving.',
-                active: true
-              }
+            "Puzzle - 1 piece": {
+              sd: '"Do the puzzle" while placing the piece...',
+              note: 'Use both hands.',
+              active: true
+            },
+            "Puzzle - 2 pieces": {
+              sd: '"Do the puzzle" with two pieces...',
+              note: 'Encourage problem solving.',
+              active: true
             }
           },
           "Matching": {
-            targets: {
-              "Color Matching": {
-                sd: '"Match the colors"',
-                note: 'Use visual cues.',
-                active: true
-              }
+            "Color Matching": {
+              sd: '"Match the colors"',
+              note: 'Use visual cues.',
+              active: true
             }
           }
         }
       },
-      "Language - Receptive": {
-        programs: {
+      "Jane Doe": {
+        "Language - Receptive": {
           "Imitation": {
-            targets: {
-              "Tracing Letters": {
-                sd: '"Trace the letters"',
-                note: 'Focus on letter shapes.',
-                active: true
-              }
+            "Tracing Letters": {
+              sd: '"Trace the letters"',
+              note: 'Focus on letter shapes.',
+              active: true
             }
           },
           "Labeling (Tacts)": {
-            targets: {
-              "Conversation Skills": {
-                sd: '"Talk about daily activities"',
-                note: 'Prompt with questions.',
-                active: true
-              }
-            }
-          }
-        }
-      },
-      "Social Skills": {
-        programs: {
-          "Social Greetings": {
-            targets: {
-              "Greeting by name": {
-                sd: '"Say hello to your friend"',
-                note: 'Maintain eye contact.',
-                active: true
-              }
-            }
-          },
-          "Adaptive Skills": {
-            targets: {
-              "Sharing Toys": {
-                sd: '"Share your toys with a peer"',
-                note: 'Praise sharing behavior.',
-                active: true
-              }
+            "Conversation Skills": {
+              sd: '"Talk about daily activities"',
+              note: 'Prompt with questions.',
+              active: true
             }
           }
         }
@@ -648,31 +618,45 @@
     let trialHistory = [];
 
     /********************************************************
-     * FUNCTIONS FOR MAIN INTERFACE
+     * FUNCTIONS FOR MAIN INTERFACE (Using the hierarchical appData)
      ********************************************************/
-    const areaSelect = document.getElementById('contentAreaSelect');
-    const programSelect = document.getElementById('programSelect');
-    const targetSelect = document.getElementById('targetSelect');
-    const sdInput = document.getElementById('sdInput');
-    const notesArea = document.getElementById('notesArea');
-    const descriptionP = document.getElementById('selectedDescription');
-    const priorList = document.getElementById('priorList');
+    const childNameSelect = document.getElementById("childNameSelect");
+    const contentAreaSelect = document.getElementById("contentAreaSelect");
+    const programSelect = document.getElementById("programSelect");
+    const targetSelect = document.getElementById("targetSelect");
+    const sdInput = document.getElementById("sdInput");
+    const notesArea = document.getElementById("notesArea");
+    const descriptionP = document.getElementById("selectedDescription");
+    const priorList = document.getElementById("priorList");
 
-    function populateContentAreas() {
-      areaSelect.innerHTML = "";
-      Object.keys(appData).forEach(area => {
-        const opt = document.createElement("option");
-        opt.value = area;
-        opt.textContent = area;
-        areaSelect.appendChild(opt);
+    function populateChildNames() {
+      childNameSelect.innerHTML = "";
+      Object.keys(appData).forEach(child => {
+        let opt = document.createElement("option");
+        opt.value = child;
+        opt.textContent = child;
+        childNameSelect.appendChild(opt);
       });
     }
+    function updateContentAreas() {
+      let selectedChild = childNameSelect.value;
+      contentAreaSelect.innerHTML = "";
+      if(appData[selectedChild]){
+        Object.keys(appData[selectedChild]).forEach(area => {
+          let opt = document.createElement("option");
+          opt.value = area;
+          opt.textContent = area;
+          contentAreaSelect.appendChild(opt);
+        });
+      }
+    }
     function updateProgramSelect() {
-      const selectedArea = areaSelect.value;
+      let selectedChild = childNameSelect.value;
+      let selectedArea = contentAreaSelect.value;
       programSelect.innerHTML = "";
-      if (appData[selectedArea]) {
-        Object.keys(appData[selectedArea].programs).forEach(prog => {
-          const opt = document.createElement("option");
+      if(appData[selectedChild] && appData[selectedChild][selectedArea]){
+        Object.keys(appData[selectedChild][selectedArea]).forEach(prog => {
+          let opt = document.createElement("option");
           opt.value = prog;
           opt.textContent = prog;
           programSelect.appendChild(opt);
@@ -680,14 +664,15 @@
       }
     }
     function updateTargetSelect() {
-      const selectedArea = areaSelect.value;
-      const selectedProgram = programSelect.value;
+      let selectedChild = childNameSelect.value;
+      let selectedArea = contentAreaSelect.value;
+      let selectedProgram = programSelect.value;
       targetSelect.innerHTML = "";
-      if (appData[selectedArea] && appData[selectedArea].programs[selectedProgram]) {
-        Object.keys(appData[selectedArea].programs[selectedProgram].targets)
-          .filter(target => appData[selectedArea].programs[selectedProgram].targets[target].active)
+      if(appData[selectedChild] && appData[selectedChild][selectedArea] && appData[selectedChild][selectedArea][selectedProgram]){
+        Object.keys(appData[selectedChild][selectedArea][selectedProgram])
+          .filter(target => appData[selectedChild][selectedArea][selectedProgram][target].active)
           .forEach(target => {
-            const opt = document.createElement("option");
+            let opt = document.createElement("option");
             opt.value = target;
             opt.textContent = target;
             targetSelect.appendChild(opt);
@@ -695,35 +680,49 @@
       }
     }
     function updateInstructions() {
-      const area = areaSelect.value;
-      const prog = programSelect.value;
-      const targ = targetSelect.value;
-      if (area && prog && targ) {
-        const targetData = appData[area].programs[prog].targets[targ];
-        sdInput.value = targetData.sd;
-        notesArea.value = targetData.note;
+      let selectedChild = childNameSelect.value;
+      let selectedArea = contentAreaSelect.value;
+      let selectedProgram = programSelect.value;
+      let selectedTarget = targetSelect.value;
+      if(appData[selectedChild] && appData[selectedChild][selectedArea] && appData[selectedChild][selectedArea][selectedProgram] && appData[selectedChild][selectedArea][selectedProgram][selectedTarget]){
+        let rec = appData[selectedChild][selectedArea][selectedProgram][selectedTarget];
+        sdInput.value = rec.sd;
+        notesArea.value = rec.note;
+      } else {
+        sdInput.value = "";
+        notesArea.value = "";
       }
     }
     function updateDescription() {
-      descriptionP.textContent = areaSelect.value + ' -- ' + programSelect.value + ' -- ' + targetSelect.value;
+      let selectedChild = childNameSelect.value;
+      descriptionP.textContent = selectedChild + ' -- ' + contentAreaSelect.value + ' -- ' + programSelect.value + ' -- ' + targetSelect.value;
     }
     function updatePriorResults() {
-      const currentArea = areaSelect.value;
-      const currentProgram = programSelect.value;
-      const currentTarget = targetSelect.value;
+      let selectedChild = childNameSelect.value;
+      let currentArea = contentAreaSelect.value;
+      let currentProgram = programSelect.value;
+      let currentTarget = targetSelect.value;
       const filtered = trialHistory.filter(item => 
-        item.area === currentArea && item.program === currentProgram && item.target === currentTarget
+        item.child === selectedChild && item.contentArea === currentArea && item.program === currentProgram && item.target === currentTarget
       );
       const lastFive = filtered.slice(-5);
       priorList.innerHTML = "";
-      for (let i = lastFive.length - 1; i >= 0; i--) {
-        const li = document.createElement('li');
+      for(let i = lastFive.length - 1; i >= 0; i--){
+        let li = document.createElement("li");
         li.textContent = lastFive[i].result.charAt(0).toUpperCase() + lastFive[i].result.slice(1);
         li.className = lastFive[i].result;
         priorList.appendChild(li);
       }
     }
-    areaSelect.addEventListener('change', () => {
+    childNameSelect.addEventListener('change', () => {
+      updateContentAreas();
+      updateProgramSelect();
+      updateTargetSelect();
+      updateInstructions();
+      updateDescription();
+      updatePriorResults();
+    });
+    contentAreaSelect.addEventListener('change', () => {
       updateProgramSelect();
       updateTargetSelect();
       updateInstructions();
@@ -741,7 +740,8 @@
       updateDescription();
       updatePriorResults();
     });
-    populateContentAreas();
+    populateChildNames();
+    updateContentAreas();
     updateProgramSelect();
     updateTargetSelect();
     updateInstructions();
@@ -752,57 +752,23 @@
      * Randomization Functionality
      ********************************************************/
     function randomizeTrialData() {
-      const lockArea = document.getElementById('lockContentArea').checked;
-      const lockProg = document.getElementById('lockProgram').checked;
-      const lockTarg = document.getElementById('lockTarget').checked;
-      if (lockTarg) {
-        // Do nothing if target is locked.
-      } else if (lockProg) {
-        const selectedArea = areaSelect.value;
-        const selectedProg = programSelect.value;
-        const targets = Object.keys(appData[selectedArea].programs[selectedProg].targets)
-                         .filter(t => appData[selectedArea].programs[selectedProg].targets[t].active);
-        if(targets.length > 0){
-          const randomIndex = Math.floor(Math.random() * targets.length);
-          targetSelect.value = targets[randomIndex];
-        }
-      } else if (lockArea) {
-        const lockedArea = areaSelect.value;
-        const programs = Object.keys(appData[lockedArea].programs);
-        if(programs.length > 0){
-          const randomIndexProg = Math.floor(Math.random() * programs.length);
-          programSelect.value = programs[randomIndexProg];
-          updateTargetSelect();
-          const selectedProg = programSelect.value;
-          const targets = Object.keys(appData[lockedArea].programs[selectedProg].targets)
-                           .filter(t => appData[lockedArea].programs[selectedProg].targets[t].active);
-          if(targets.length > 0){
-            const randomIndexTarget = Math.floor(Math.random() * targets.length);
-            targetSelect.value = targets[randomIndexTarget];
-          }
-        }
-      } else {
-        const areas = Object.keys(appData);
-        if(areas.length > 0){
-          const randomIndexArea = Math.floor(Math.random() * areas.length);
-          areaSelect.value = areas[randomIndexArea];
-          updateProgramSelect();
-          const selectedArea = areaSelect.value;
-          const programs = Object.keys(appData[selectedArea].programs);
-          if(programs.length > 0){
-            const randomIndexProg = Math.floor(Math.random() * programs.length);
-            programSelect.value = programs[randomIndexProg];
-            updateTargetSelect();
-            const selectedProg = programSelect.value;
-            const targets = Object.keys(appData[selectedArea].programs[selectedProg].targets)
-                             .filter(t => appData[selectedArea].programs[selectedProg].targets[t].active);
-            if(targets.length > 0){
-              const randomIndexTarget = Math.floor(Math.random() * targets.length);
-              targetSelect.value = targets[randomIndexTarget];
-            }
-          }
-        }
-      }
+      let selectedChild = childNameSelect.value;
+      if(!appData[selectedChild]) return;
+      let childData = appData[selectedChild];
+      let contentAreas = Object.keys(childData);
+      if(contentAreas.length === 0) return;
+      let randomArea = contentAreas[Math.floor(Math.random() * contentAreas.length)];
+      contentAreaSelect.value = randomArea;
+      updateProgramSelect();
+      let programs = Object.keys(childData[randomArea]);
+      if(programs.length === 0) return;
+      let randomProgram = programs[Math.floor(Math.random() * programs.length)];
+      programSelect.value = randomProgram;
+      updateTargetSelect();
+      let targets = Object.keys(childData[randomArea][randomProgram]).filter(t => childData[randomArea][randomProgram][t].active);
+      if(targets.length === 0) return;
+      let randomTarget = targets[Math.floor(Math.random() * targets.length)];
+      targetSelect.value = randomTarget;
       updateInstructions();
       updateDescription();
       updatePriorResults();
@@ -815,7 +781,7 @@
     const toggleBtn = document.getElementById('toggleDetailsBtn');
     const topSection = document.getElementById('topSection');
     toggleBtn.addEventListener('click', () => {
-      if (topSection.style.display === 'none' || topSection.style.display === '') {
+      if(topSection.style.display === 'none' || topSection.style.display === ''){
         topSection.style.display = 'block';
         toggleBtn.textContent = 'Hide Details';
       } else {
@@ -833,19 +799,20 @@
       });
     }
     function recordTrial(result) {
-      alert("Trial Data Recorded: " + result);
-      trialHistory.push({
-        area: areaSelect.value,
+      let record = {
+        child: childNameSelect.value,
+        contentArea: contentAreaSelect.value,
         program: programSelect.value,
         target: targetSelect.value,
         result: result
-      });
+      };
+      trialHistory.push(record);
       updatePriorResults();
       randomizeTrialData();
       clearTrialSelection();
     }
     document.querySelectorAll('input[name="trialResult"]').forEach(radio => {
-      radio.addEventListener('change', function(e) {
+      radio.addEventListener('change', e => {
         recordTrial(e.target.value);
       });
     });
@@ -858,6 +825,7 @@
     const cancelEditBtn = document.getElementById('cancelEditBtn');
     const editForm = document.getElementById('editForm');
     const modalTitle = document.getElementById('modalTitle');
+    const editChild = document.getElementById('editChild');
     const editContentArea = document.getElementById('editContentArea');
     const editProgram = document.getElementById('editProgram');
     const editTarget = document.getElementById('editTarget');
@@ -865,6 +833,7 @@
     const editNote = document.getElementById('editNote');
     const editModeField = document.getElementById('editMode');
     const editTypeField = document.getElementById('editType');
+    const originalChildField = document.getElementById('originalChild');
     const originalAreaField = document.getElementById('originalArea');
     const originalProgramField = document.getElementById('originalProgram');
     const originalTargetField = document.getElementById('originalTarget');
@@ -872,32 +841,30 @@
     function openEditModal(editType = "target", mode = "add", data = {}) {
       editModeField.value = mode;
       editTypeField.value = editType;
-      if (mode === "add") {
+      if(mode === "add"){
         modalTitle.textContent = "Add New Target Record";
-      } else if (mode === "edit") {
+      } else if(mode === "edit"){
         modalTitle.textContent = "Edit " + editType.charAt(0).toUpperCase() + editType.slice(1);
       }
-      if (editType === "contentArea") {
+      if(editType === "child"){
+        editChild.value = data.child || "";
+        originalChildField.value = data.child || "";
+      } else if(editType === "contentArea"){
         editContentArea.value = data.area || "";
-        editProgram.value = "";
-        editTarget.value = "";
-        editSD.value = "";
-        editNote.value = "";
         originalAreaField.value = data.area || "";
-      } else if (editType === "program") {
+      } else if(editType === "program"){
         editContentArea.value = data.area || "";
         editProgram.value = data.program || "";
-        editTarget.value = "";
-        editSD.value = "";
-        editNote.value = "";
         originalAreaField.value = data.area || "";
         originalProgramField.value = data.program || "";
-      } else if (editType === "target") {
+      } else if(editType === "target"){
+        editChild.value = data.child || "";
         editContentArea.value = data.area || "";
         editProgram.value = data.program || "";
         editTarget.value = data.target || "";
         editSD.value = data.sd || "";
         editNote.value = data.note || "";
+        originalChildField.value = data.child || "";
         originalAreaField.value = data.area || "";
         originalProgramField.value = data.program || "";
         originalTargetField.value = data.target || "";
@@ -913,75 +880,46 @@
       e.preventDefault();
       const mode = editModeField.value;
       const type = editTypeField.value;
+      const newChild = editChild.value.trim();
       const newArea = editContentArea.value.trim();
       const newProg = editProgram.value.trim();
       const newTarget = editTarget.value.trim();
       const newSD = editSD.value.trim();
       const newNote = editNote.value.trim();
-      if (type === "contentArea") {
-        if (mode === "edit") {
-          const origArea = originalAreaField.value;
-          if (origArea !== newArea) {
-            appData[newArea] = appData[origArea];
-            delete appData[origArea];
+      if(type === "target"){
+        if(!appData[newChild]) { appData[newChild] = {}; }
+        if(!appData[newChild][newArea]) { appData[newChild][newArea] = {}; }
+        if(!appData[newChild][newArea][newProg]) { appData[newChild][newArea][newProg] = {}; }
+        if(mode === "add"){
+          if(appData[newChild][newArea][newProg][newTarget] && !confirm("Target already exists. Overwrite?")){
+            return;
           }
-        }
-      } else if (type === "program") {
-        const areaKey = newArea;
-        if (!appData[areaKey]) {
-          alert("Content Area does not exist.");
-          return;
-        }
-        if (mode === "edit") {
-          const origProg = originalProgramField.value;
-          if (origProg !== newProg) {
-            appData[areaKey].programs[newProg] = appData[areaKey].programs[origProg];
-            delete appData[areaKey].programs[origProg];
-          }
-        }
-      } else if (type === "target") {
-        if (!appData[newArea]) {
-          appData[newArea] = { programs: {} };
-        }
-        if (!appData[newArea].programs[newProg]) {
-          appData[newArea].programs[newProg] = { targets: {} };
-        }
-        if (mode === "add") {
-          if (appData[newArea].programs[newProg].targets[newTarget]) {
-            if (!confirm("Target already exists. Overwrite?")) return;
-          }
-          appData[newArea].programs[newProg].targets[newTarget] = {
-            sd: newSD,
-            note: newNote,
-            active: true
-          };
-        } else if (mode === "edit") {
+          appData[newChild][newArea][newProg][newTarget] = { sd: newSD, note: newNote, active: true };
+        } else if(mode === "edit"){
+          const origChild = originalChildField.value;
           const origArea = originalAreaField.value;
           const origProg = originalProgramField.value;
           const origTarget = originalTargetField.value;
-          if (origArea && origProg && origTarget) {
-            delete appData[origArea].programs[origProg].targets[origTarget];
-            if (Object.keys(appData[origArea].programs[origProg].targets).length === 0) {
-              delete appData[origArea].programs[origProg];
-              if (Object.keys(appData[origArea].programs).length === 0) {
-                delete appData[origArea];
+          if(origChild && origArea && origProg && origTarget){
+            delete appData[origChild][origArea][origProg][origTarget];
+            if(Object.keys(appData[origChild][origArea][origProg]).length === 0){
+              delete appData[origChild][origArea][origProg];
+              if(Object.keys(appData[origChild][origArea]).length === 0){
+                delete appData[origChild][origArea];
+                if(Object.keys(appData[origChild]).length === 0){
+                  delete appData[origChild];
+                }
               }
             }
           }
-          if (!appData[newArea]) {
-            appData[newArea] = { programs: {} };
-          }
-          if (!appData[newArea].programs[newProg]) {
-            appData[newArea].programs[newProg] = { targets: {} };
-          }
-          appData[newArea].programs[newProg].targets[newTarget] = {
-            sd: newSD,
-            note: newNote,
-            active: true
-          };
+          if(!appData[newChild]) { appData[newChild] = {}; }
+          if(!appData[newChild][newArea]) { appData[newChild][newArea] = {}; }
+          if(!appData[newChild][newArea][newProg]) { appData[newChild][newArea][newProg] = {}; }
+          appData[newChild][newArea][newProg][newTarget] = { sd: newSD, note: newNote, active: true };
         }
       }
-      populateContentAreas();
+      populateChildNames();
+      updateContentAreas();
       updateProgramSelect();
       updateTargetSelect();
       updateInstructions();
@@ -1002,26 +940,27 @@
 
     function buildDataTable() {
       let rows = [];
-      Object.keys(appData).forEach(area => {
-        Object.keys(appData[area].programs).forEach(prog => {
-          Object.keys(appData[area].programs[prog].targets).forEach(targ => {
-            let rec = appData[area].programs[prog].targets[targ];
-            rows.push({
-              area: area,
-              program: prog,
-              target: targ,
-              sd: rec.sd,
-              note: rec.note,
-              active: rec.active
+      Object.keys(appData).forEach(child => {
+        Object.keys(appData[child]).forEach(area => {
+          Object.keys(appData[child][area]).forEach(prog => {
+            Object.keys(appData[child][area][prog]).forEach(targ => {
+              let rec = appData[child][area][prog][targ];
+              rows.push({
+                child: child,
+                contentArea: area,
+                program: prog,
+                target: targ,
+                sd: rec.sd,
+                note: rec.note,
+                active: rec.active
+              });
             });
           });
         });
       });
       
-      // New column order: Active, Content Area, Program, Target, SD, Note, Action.
-      let columns = ["Active", "Content Area", "Program", "Target", "SD", "Note", "Action"];
-      let thead = "<thead>";
-      thead += "<tr>";
+      let columns = ["Child", "Active", "Content Area", "Program", "Target", "SD", "Note", "Action"];
+      let thead = "<thead><tr>";
       columns.forEach((col, index) => {
         if(col !== "Action"){
           thead += `<th data-col="${index}" class="sortable">${col}</th>`;
@@ -1030,7 +969,6 @@
         }
       });
       thead += "</tr>";
-      // Filter row: no filters for Active and Action columns.
       thead += "<tr class='filterRow'>";
       columns.forEach((col, index) => {
         if(col === "Active" || col === "Action"){
@@ -1039,20 +977,19 @@
           thead += `<th><input type="text" data-col="${index}" placeholder="Filter ${col}" /></th>`;
         }
       });
-      thead += "</tr>";
-      thead += "</thead>";
+      thead += "</tr></thead>";
       
       let tbody = "<tbody>";
-      rows.forEach((row) => {
+      rows.forEach(row => {
         tbody += "<tr>";
-        // Active column first:
-        tbody += `<td style="text-align: center;"><input type="checkbox" class="activeCheckbox" data-area="${row.area}" data-program="${row.program}" data-target="${row.target}" ${row.active ? "checked" : ""} /></td>`;
-        tbody += `<td>${row.area}</td>`;
+        tbody += `<td>${row.child}</td>`;
+        tbody += `<td style="text-align: center;"><input type="checkbox" class="activeCheckbox" data-child="${row.child}" data-contentArea="${row.contentArea}" data-program="${row.program}" data-target="${row.target}" ${row.active ? "checked" : ""} /></td>`;
+        tbody += `<td>${row.contentArea}</td>`;
         tbody += `<td>${row.program}</td>`;
         tbody += `<td>${row.target}</td>`;
         tbody += `<td>${row.sd}</td>`;
         tbody += `<td>${row.note}</td>`;
-        tbody += `<td><button class="tableEditBtn" data-area="${row.area}" data-program="${row.program}" data-target="${row.target}">Edit</button></td>`;
+        tbody += `<td><button class="tableEditBtn" data-child="${row.child}" data-contentArea="${row.contentArea}" data-program="${row.program}" data-target="${row.target}">Edit</button></td>`;
         tbody += "</tr>";
       });
       tbody += "</tbody>";
@@ -1062,7 +999,7 @@
       const sortableHeaders = dataTable.querySelectorAll("th.sortable");
       sortableHeaders.forEach(header => {
         header.addEventListener("click", () => {
-          const colIndex = header.getAttribute("data-col");
+          let colIndex = header.getAttribute("data-col");
           sortTable(colIndex);
         });
       });
@@ -1075,21 +1012,23 @@
       const editButtons = dataTable.querySelectorAll(".tableEditBtn");
       editButtons.forEach(btn => {
         btn.addEventListener("click", function(){
-          const area = btn.getAttribute("data-area");
-          const prog = btn.getAttribute("data-program");
-          const targ = btn.getAttribute("data-target");
-          const rec = appData[area].programs[prog].targets[targ];
-          openSimpleEditModal({ area: area, program: prog, target: targ, sd: rec.sd, note: rec.note, active: rec.active }, "edit");
+          let child = btn.getAttribute("data-child");
+          let area = btn.getAttribute("data-contentArea");
+          let prog = btn.getAttribute("data-program");
+          let targ = btn.getAttribute("data-target");
+          let rec = appData[child][area][prog][targ];
+          openSimpleEditModal({child: child, area: area, program: prog, target: targ, sd: rec.sd, note: rec.note, active: rec.active}, "edit");
         });
       });
       
       const activeCheckboxes = dataTable.querySelectorAll(".activeCheckbox");
       activeCheckboxes.forEach(chk => {
         chk.addEventListener("change", function(){
-          const area = chk.getAttribute("data-area");
-          const prog = chk.getAttribute("data-program");
-          const targ = chk.getAttribute("data-target");
-          appData[area].programs[prog].targets[targ].active = chk.checked;
+          let child = chk.getAttribute("data-child");
+          let area = chk.getAttribute("data-contentArea");
+          let prog = chk.getAttribute("data-program");
+          let targ = chk.getAttribute("data-target");
+          appData[child][area][prog][targ].active = chk.checked;
           updateTargetSelect();
           updateInstructions();
           updateDescription();
@@ -1105,8 +1044,8 @@
       rows.sort((a, b) => {
         const aText = a.children[colIndex].textContent.toLowerCase();
         const bText = b.children[colIndex].textContent.toLowerCase();
-        if (aText < bText) return -1 * sortOrder;
-        if (aText > bText) return 1 * sortOrder;
+        if(aText < bText) return -1 * sortOrder;
+        if(aText > bText) return 1 * sortOrder;
         return 0;
       });
       sortOrder *= -1;
@@ -1124,7 +1063,7 @@
       const rows = tbody.querySelectorAll("tr");
       rows.forEach(row => {
         let show = true;
-        // Do not filter the first (Active) and last (Action) columns.
+        // Skip filtering for Active and Action columns (first and last columns)
         for(let i = 1; i < row.children.length - 1; i++){
           const cellText = row.children[i].textContent.toLowerCase();
           if(filters[i+1] && !cellText.includes(filters[i+1])){
@@ -1154,12 +1093,14 @@
     const closeSimpleEditModal = document.getElementById('closeSimpleEditModal');
     const simpleEditForm = document.getElementById('simpleEditForm');
     const simpleModalTitle = document.getElementById('simpleModalTitle');
+    const simpleEditChild = document.getElementById('simpleEditChild');
     const simpleEditContentArea = document.getElementById('simpleEditContentArea');
     const simpleEditProgram = document.getElementById('simpleEditProgram');
     const simpleEditTarget = document.getElementById('simpleEditTarget');
     const simpleEditSD = document.getElementById('simpleEditSD');
     const simpleEditNote = document.getElementById('simpleEditNote');
     const simpleEditActive = document.getElementById('simpleEditActive');
+    const simpleOriginalChild = document.getElementById('simpleOriginalChild');
     const simpleOriginalArea = document.getElementById('simpleOriginalArea');
     const simpleOriginalProgram = document.getElementById('simpleOriginalProgram');
     const simpleOriginalTarget = document.getElementById('simpleOriginalTarget');
@@ -1167,21 +1108,34 @@
     const simpleEditModeField = document.getElementById('simpleEditMode');
 
     // --- Datalist update functions for the simple modal ---
+    function updateChildDatalist() {
+      const datalist = document.getElementById('childList');
+      datalist.innerHTML = "";
+      Object.keys(appData).forEach(child => {
+        const option = document.createElement('option');
+        option.value = child;
+        datalist.appendChild(option);
+      });
+    }
     function updateContentAreaDatalist() {
       const datalist = document.getElementById('contentAreaList');
       datalist.innerHTML = "";
-      Object.keys(appData).forEach(area => {
-        const option = document.createElement('option');
-        option.value = area;
-        datalist.appendChild(option);
-      });
+      let childVal = simpleEditChild.value;
+      if(appData[childVal]){
+        Object.keys(appData[childVal]).forEach(area => {
+          const option = document.createElement('option');
+          option.value = area;
+          datalist.appendChild(option);
+        });
+      }
     }
     function updateProgramDatalist() {
       const datalist = document.getElementById('programList');
       datalist.innerHTML = "";
-      const areaVal = simpleEditContentArea.value;
-      if(appData[areaVal] && appData[areaVal].programs){
-        Object.keys(appData[areaVal].programs).forEach(prog => {
+      let childVal = simpleEditChild.value;
+      let areaVal = simpleEditContentArea.value;
+      if(appData[childVal] && appData[childVal][areaVal]){
+        Object.keys(appData[childVal][areaVal]).forEach(prog => {
           const option = document.createElement('option');
           option.value = prog;
           datalist.appendChild(option);
@@ -1191,46 +1145,56 @@
     function updateTargetDatalist() {
       const datalist = document.getElementById('targetList');
       datalist.innerHTML = "";
-      const areaVal = simpleEditContentArea.value;
-      const progVal = simpleEditProgram.value;
-      if(appData[areaVal] && appData[areaVal].programs && appData[areaVal].programs[progVal] && appData[areaVal].programs[progVal].targets){
-        Object.keys(appData[areaVal].programs[progVal].targets).forEach(targ => {
+      let childVal = simpleEditChild.value;
+      let areaVal = simpleEditContentArea.value;
+      let progVal = simpleEditProgram.value;
+      if(appData[childVal] && appData[childVal][areaVal] && appData[childVal][areaVal][progVal]){
+        Object.keys(appData[childVal][areaVal][progVal]).forEach(targ => {
           const option = document.createElement('option');
           option.value = targ;
           datalist.appendChild(option);
         });
       }
     }
+    simpleEditChild.addEventListener('input', updateContentAreaDatalist);
     simpleEditContentArea.addEventListener('input', updateProgramDatalist);
     simpleEditProgram.addEventListener('input', updateTargetDatalist);
 
-    // Open the simple modal for editing or adding.
-    // mode: "edit" or "add"
     function openSimpleEditModal(data, mode) {
       simpleEditModeField.value = mode;
       if(mode === "edit"){
         simpleModalTitle.textContent = "Edit Record";
+        simpleEditChild.value = data.child || "";
         simpleEditContentArea.value = data.area || "";
         simpleEditProgram.value = data.program || "";
         simpleEditTarget.value = data.target || "";
         simpleEditSD.value = data.sd || "";
         simpleEditNote.value = data.note || "";
         simpleEditActive.checked = (data.active === false ? false : true);
+        simpleOriginalChild.value = data.child || "";
         simpleOriginalArea.value = data.area || "";
         simpleOriginalProgram.value = data.program || "";
         simpleOriginalTarget.value = data.target || "";
       } else if(mode === "add"){
         simpleModalTitle.textContent = "Add New Record";
+        // If Child Name is locked at the top, default to that.
+        if(document.getElementById("lockChildName").checked){
+          simpleEditChild.value = childNameSelect.value;
+        } else {
+          simpleEditChild.value = "";
+        }
         simpleEditContentArea.value = "";
         simpleEditProgram.value = "";
         simpleEditTarget.value = "";
         simpleEditSD.value = "";
         simpleEditNote.value = "";
-        simpleEditActive.checked = true;
+        simpleEditActive.checked = false;  // Unchecked by default for new record.
+        simpleOriginalChild.value = "";
         simpleOriginalArea.value = "";
         simpleOriginalProgram.value = "";
         simpleOriginalTarget.value = "";
       }
+      updateChildDatalist();
       updateContentAreaDatalist();
       updateProgramDatalist();
       updateTargetDatalist();
@@ -1245,6 +1209,7 @@
     simpleEditForm.addEventListener('submit', function(e) {
       e.preventDefault();
       const mode = simpleEditModeField.value; // "edit" or "add"
+      const newChild = simpleEditChild.value.trim();
       const newArea = simpleEditContentArea.value.trim();
       const newProg = simpleEditProgram.value.trim();
       const newTarget = simpleEditTarget.value.trim();
@@ -1252,48 +1217,57 @@
       const newNote = simpleEditNote.value.trim();
       const newActive = simpleEditActive.checked;
       
-      // Validate that all fields (except active) are filled.
-      if(!newArea || !newProg || !newTarget || !newSD || !newNote){
+      if(!newChild || !newArea || !newProg || !newTarget || !newSD || !newNote){
         alert("All fields are required.");
         return;
       }
       
       if(mode === "edit"){
+        const origChild = simpleOriginalChild.value;
         const origArea = simpleOriginalArea.value;
         const origProg = simpleOriginalProgram.value;
         const origTarget = simpleOriginalTarget.value;
-        if(origArea && origProg && origTarget){
-          delete appData[origArea].programs[origProg].targets[origTarget];
-          if(Object.keys(appData[origArea].programs[origProg].targets).length === 0){
-            delete appData[origArea].programs[origProg];
-            if(Object.keys(appData[origArea].programs).length === 0){
-              delete appData[origArea];
+        if(origChild && origArea && origProg && origTarget){
+          delete appData[origChild][origArea][origProg][origTarget];
+          if(Object.keys(appData[origChild][origArea][origProg]).length === 0){
+            delete appData[origChild][origArea][origProg];
+            if(Object.keys(appData[origChild][origArea]).length === 0){
+              delete appData[origChild][origArea];
+              if(Object.keys(appData[origChild]).length === 0){
+                delete appData[origChild];
+              }
             }
           }
         }
       }
-      if(!appData[newArea]){
-        appData[newArea] = { programs: {} };
+      if(!appData[newChild]){
+        appData[newChild] = {};
       }
-      if(!appData[newArea].programs[newProg]){
-        appData[newArea].programs[newProg] = { targets: {} };
+      if(!appData[newChild][newArea]){
+        appData[newChild][newArea] = {};
       }
-      if(mode === "add" && appData[newArea].programs[newProg].targets[newTarget]){
+      if(!appData[newChild][newArea][newProg]){
+        appData[newChild][newArea][newProg] = {};
+      }
+      if(mode === "add" && appData[newChild][newArea][newProg][newTarget]){
         if(!confirm("Target already exists. Overwrite?")){
           return;
         }
       }
-      appData[newArea].programs[newProg].targets[newTarget] = {
+      appData[newChild][newArea][newProg][newTarget] = {
         sd: newSD,
         note: newNote,
         active: newActive
       };
       closeSimpleEditModalFunc();
       buildDataTable();
-      if(areaSelect.value === simpleOriginalArea.value &&
+      if(childNameSelect.value === simpleOriginalChild.value &&
+         contentAreaSelect.value === simpleOriginalArea.value &&
          programSelect.value === simpleOriginalProgram.value &&
          targetSelect.value === simpleOriginalTarget.value){
-           areaSelect.value = newArea;
+           childNameSelect.value = newChild;
+           updateContentAreas();
+           contentAreaSelect.value = newArea;
            updateProgramSelect();
            programSelect.value = newProg;
            updateTargetSelect();
@@ -1316,20 +1290,13 @@
      * (Clicking outside a modal closes it)
      ********************************************************/
     window.addEventListener('click', function(e) {
-      if (e.target == editModal) {
+      if(e.target == editModal){
         closeEditModal();
       }
-      if (e.target == simpleEditModal) {
+      if(e.target == simpleEditModal){
         closeSimpleEditModalFunc();
       }
     });
   </script>
-  
-  <!-- Datalists for the simple modal -->
-  <datalist id="contentAreaList"></datalist>
-  <datalist id="programList"></datalist>
-  <datalist id="targetList"></datalist>
-  
 </body>
 </html>
-
