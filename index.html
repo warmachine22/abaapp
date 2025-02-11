@@ -28,7 +28,7 @@
       font-size: 1.2rem;
     }
 
-    /* Drop-downs stacked vertically (locking toggles on the left) */
+    /* Drop-downs stacked vertically */
     .dropdowns {
       display: flex;
       flex-direction: column;
@@ -45,13 +45,15 @@
       gap: 0.5rem;
       margin-bottom: 0.3rem;
     }
+    /* We place the switch to the left, label on the right */
     .dropdown-label-and-toggle .switch {
-      order: 1;
+      order: 1; /* Make sure switch is first */
     }
     .dropdown-label-and-toggle label:not(.switch) {
-      order: 2;
+      order: 2; /* The text label is second */
       font-weight: bold;
     }
+
     .dropdown-row select {
       width: 100%;
       padding: 0.3rem;
@@ -74,24 +76,27 @@
       cursor: pointer;
       top: 0; left: 0; right: 0; bottom: 0;
       background-color: #fff; /* White background */
-      border: 1px solid #ccc;
+      border: 1px solid #ccc; /* Light border for visibility */
       transition: 0.4s;
       border-radius: 22px;
     }
+    /* We will display a lock/unlock icon via :before content */
     .slider:before {
       position: absolute;
       left: 4px;
       top: 3px;
       font-size: 14px;
-      /* Attempt forcing black-and-white icon instead of color emoji */
+      /* Attempt to force black-and-white glyphs instead of color emojis */
       font-family: "Segoe UI Symbol", "Apple Symbols", "Noto Sans Symbols", sans-serif;
       color: #000;
       content: '🔓';  /* unlocked icon by default */
       transition: 0.4s;
     }
+
     input:checked + .slider {
       background-color: #c8e6c9; /* light greenish background when "locked" */
     }
+    /* Show locked icon when checked */
     input:checked + .slider:before {
       content: '🔒';
       transform: translateX(16px);
@@ -115,33 +120,51 @@
       resize: vertical;
     }
 
-    /* New single-dropdown + Submit for Trial Result */
-    .trial-result-dropdown {
+    /* Two-column trial results */
+    .trial-results {
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0.5rem;
+      gap: 1rem;
       margin-bottom: 1rem;
     }
-    .trial-result-dropdown label {
-      font-weight: bold;
-      margin-right: 0.5rem;
-    }
-    .trial-result-dropdown select {
+    .trial-results .column {
       flex: 1;
-      min-width: 200px;
-      padding: 0.3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
-    .trial-result-dropdown button {
-      padding: 0.5rem 1rem;
-      background-color: #0288d1;
-      color: #fff;
-      border: none;
+
+    /* Radio button label styles by result type */
+    /* Light yellow for "other," light green for "Independent," light red for "Incorrect" */
+    label.verbal,
+    label.prompted,
+    label.modeling,
+    label.gestural,
+    label.partialPhysical,
+    label.fullPhysical {
+      background-color: #fff9c4; /* light yellow */
+    }
+    label.independent {
+      background-color: #c8f7c5; /* light green */
+    }
+    label.incorrect {
+      background-color: #ffcdd2; /* light red */
+    }
+
+    /* Common styling for the labels */
+    .trial-results label {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
       border-radius: 4px;
       cursor: pointer;
     }
-    .trial-result-dropdown button:hover {
-      background-color: #0277bd;
+    .trial-results input[type="radio"] {
+      margin-right: 0.5rem;
+      transform: scale(1.2);
+    }
+    .trial-results label:hover {
+      opacity: 0.9; /* slight hover effect */
     }
 
     /* Prior results: single column (one under the other) */
@@ -160,12 +183,22 @@
       padding: 0.4rem;
       border-radius: 4px;
     }
-    /* Color scheme for prior results */
-    .verbal,
-    .prompted,
-    .modeling,
-    .gestural,
-    .partial-physical,
+    /* Prior results color scheme */
+    .verbal {
+      background-color: #fff9c4; /* yellow */
+    }
+    .prompted {
+      background-color: #fff9c4; /* yellow */
+    }
+    .modeling {
+      background-color: #fff9c4; /* yellow */
+    }
+    .gestural {
+      background-color: #fff9c4; /* yellow */
+    }
+    .partial-physical {
+      background-color: #fff9c4; /* yellow */
+    }
     .full-physical {
       background-color: #fff9c4; /* yellow */
     }
@@ -197,9 +230,8 @@
 
     /* Responsive fallback for extremely narrow screens */
     @media (max-width: 500px) {
-      .trial-result-dropdown {
+      .trial-results {
         flex-direction: column;
-        align-items: stretch;
       }
     }
   </style>
@@ -265,34 +297,59 @@
     <!-- SD & Notes stacked -->
     <div class="instructions">
       <label for="sdInput">SD (Instruction)</label>
-      <textarea id="sdInput" rows="4"
+      <textarea id="sdInput" rows="4" 
         placeholder='"Do the puzzle" while placing the piece...'></textarea>
 
       <label for="notesArea">Note</label>
-      <textarea id="notesArea" rows="4"
+      <textarea id="notesArea" rows="4" 
         placeholder="Notes: Work Harder, Work Harder..."></textarea>
     </div>
 
-    <!-- Single dropdown for trial results + submit button -->
-    <div class="trial-result-dropdown">
-      <label for="trialResultSelect">Trial Result:</label>
-      <select id="trialResultSelect">
-        <option value="verbal">Verbal</option>
-        <option value="prompted">Prompted</option>
-        <option value="modeling">Modeling</option>
-        <option value="independent">Independent</option>
-        <option value="gestural">Gestural</option>
-        <option value="partialPhysical">Partial Physical</option>
-        <option value="fullPhysical">Full Physical</option>
-        <option value="incorrect">Incorrect</option>
-      </select>
-      <button id="submitTrialResultBtn">Submit</button>
+    <!-- 2-column layout for trial result / prompt level -->
+    <div class="trial-results">
+      <div class="column">
+        <label class="verbal">
+          <input type="radio" name="trialResult" value="verbal" />
+          Verbal
+        </label>
+        <label class="prompted">
+          <input type="radio" name="trialResult" value="prompted" />
+          Prompted
+        </label>
+        <label class="modeling">
+          <input type="radio" name="trialResult" value="modeling" />
+          Modeling
+        </label>
+        <label class="independent">
+          <input type="radio" name="trialResult" value="independent" />
+          Independent
+        </label>
+      </div>
+      <div class="column">
+        <label class="gestural">
+          <input type="radio" name="trialResult" value="gestural" />
+          Gestural
+        </label>
+        <label class="partialPhysical">
+          <input type="radio" name="trialResult" value="partialPhysical" />
+          Partial Physical
+        </label>
+        <label class="fullPhysical">
+          <input type="radio" name="trialResult" value="fullPhysical" />
+          Full Physical
+        </label>
+        <label class="incorrect">
+          <input type="radio" name="trialResult" value="incorrect" />
+          Incorrect
+        </label>
+      </div>
     </div>
 
     <!-- Prior results (single column) -->
     <div class="prior-results">
       <h2>Prior Results</h2>
       <ul class="prior-list">
+        <!-- Example usage of color classes: -->
         <li class="independent">Independent</li>
         <li class="verbal">Verbal</li>
         <li class="incorrect">Incorrect</li>
@@ -310,15 +367,9 @@
 
   <!-- Minimal JavaScript for demonstration (not a real backend) -->
   <script>
-    // The toggles remain cosmetic
+    // Example: toggles do nothing except show locked vs unlocked visually
     document.getElementById('selectRandomBtn').addEventListener('click', function() {
       alert('Random target selected (mock)!');
-    });
-
-    // Example "Submit" behavior
-    document.getElementById('submitTrialResultBtn').addEventListener('click', function() {
-      var selectedResult = document.getElementById('trialResultSelect').value;
-      alert('You chose: ' + selectedResult + ' (mock submission)');
     });
   </script>
 </body>
