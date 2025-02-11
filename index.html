@@ -351,11 +351,11 @@
       </div>
     </div>
 
-    <!-- Prior Results / Trial History -->
+    <!-- Prior Results / Trial History (for the current target only) -->
     <div class="prior-results">
-      <h2>Prior Results</h2>
+      <h2>Prior Results (Current Target)</h2>
       <ul class="prior-list" id="priorList">
-        <!-- Recorded trial outcomes will be appended here -->
+        <!-- The five most recent results for the current target will appear here -->
       </ul>
     </div>
   </div>
@@ -475,6 +475,12 @@
     };
 
     /********************************************************
+     * Global Trial History Storage
+     * Each trial record is stored with its associated area, program, target, and result.
+     ********************************************************/
+    let trialHistory = [];
+
+    /********************************************************
      * FUNCTIONS FOR MAIN INTERFACE (Dropdowns, SD/Notes,
      * Description, and Trial Data Recording)
      ********************************************************/
@@ -538,21 +544,44 @@
     function updateDescription() {
       descriptionP.textContent = areaSelect.value + ' -- ' + programSelect.value + ' -- ' + targetSelect.value;
     }
-    // Event Listeners for main dropdowns
+    // Update the Prior Results list to show only results for the current target (up to 5 most recent)
+    function updatePriorResults() {
+      const currentArea = areaSelect.value;
+      const currentProgram = programSelect.value;
+      const currentTarget = targetSelect.value;
+      // Filter trialHistory for entries matching the current selection.
+      const filtered = trialHistory.filter(item => 
+        item.area === currentArea && item.program === currentProgram && item.target === currentTarget
+      );
+      // Get the most recent 5 (if there are more than 5)
+      const lastFive = filtered.slice(-5);
+      priorList.innerHTML = "";
+      // Display them in reverse order (most recent first)
+      for (let i = lastFive.length - 1; i >= 0; i--) {
+        const li = document.createElement('li');
+        li.textContent = lastFive[i].result.charAt(0).toUpperCase() + lastFive[i].result.slice(1);
+        li.className = lastFive[i].result;
+        priorList.appendChild(li);
+      }
+    }
+    // Event Listeners for main dropdowns (update instructions, description, and prior results when changed)
     areaSelect.addEventListener('change', () => {
       updateProgramSelect();
       updateTargetSelect();
       updateInstructions();
       updateDescription();
+      updatePriorResults();
     });
     programSelect.addEventListener('change', () => {
       updateTargetSelect();
       updateInstructions();
       updateDescription();
+      updatePriorResults();
     });
     targetSelect.addEventListener('change', () => {
       updateInstructions();
       updateDescription();
+      updatePriorResults();
     });
     // Initialize main interface
     populateContentAreas();
@@ -560,6 +589,7 @@
     updateTargetSelect();
     updateInstructions();
     updateDescription();
+    updatePriorResults();
 
     /********************************************************
      * "Select Random" functionality – randomize each dropdown
@@ -570,7 +600,7 @@
      * - Else if the program is locked (but target is unlocked),
      *   randomize only the target.
      * - Else if the content area is locked (and program and target are unlocked),
-     *   randomize the program (within that area) then randomize the target.
+     *   randomize the program (within that area) then target.
      * - Else (nothing is locked), randomize content area, then program, then target.
      ********************************************************/
     function randomizeTrialData() {
@@ -578,22 +608,19 @@
       const lockProg = document.getElementById('lockProgram').checked;
       const lockTarg = document.getElementById('lockTarget').checked;
 
-      // If the target is locked, do nothing.
       if (lockTarg) {
-        // Branch is completely fixed.
-        // (You may add a console.log for debugging if needed.)
+        // If target is locked, do nothing.
       }
-      // If the program is locked (but target is unlocked), randomize target only.
       else if (lockProg) {
+        // Program is locked; randomize only the target within the fixed content area and program.
         const selectedArea = areaSelect.value;
         const selectedProg = programSelect.value;
         const targets = Object.keys(appData[selectedArea].programs[selectedProg].targets);
         const randomIndex = Math.floor(Math.random() * targets.length);
         targetSelect.value = targets[randomIndex];
       }
-      // If the content area is locked (and program and target are unlocked),
-      // randomize program (within that fixed area) then target.
       else if (lockArea) {
+        // Content area is locked; randomize program (within that area) then target.
         const lockedArea = areaSelect.value;
         const programs = Object.keys(appData[lockedArea].programs);
         const randomIndexProg = Math.floor(Math.random() * programs.length);
@@ -604,8 +631,8 @@
         const randomIndexTarget = Math.floor(Math.random() * targets.length);
         targetSelect.value = targets[randomIndexTarget];
       }
-      // If nothing is locked, randomize all three.
       else {
+        // None are locked; randomize content area, then program, then target.
         const areas = Object.keys(appData);
         const randomIndexArea = Math.floor(Math.random() * areas.length);
         areaSelect.value = areas[randomIndexArea];
@@ -622,6 +649,7 @@
       }
       updateInstructions();
       updateDescription();
+      updatePriorResults();
     }
     document.getElementById('selectRandomBtn').addEventListener('click', randomizeTrialData);
 
@@ -643,8 +671,9 @@
     /********************************************************
      * Trial Data Recording:
      * When a trial result radio button is selected, record the trial,
-     * show a popup, append the result to the history, then “refresh”
-     * (randomize unlocked fields) and clear the radio selection.
+     * show a popup, add the result (with the current area/program/target)
+     * to the trialHistory array, then update the Prior Results list (for the current target)
+     * before refreshing (randomizing unlocked fields) and clearing the radio selection.
      ********************************************************/
     function clearTrialSelection() {
       document.querySelectorAll('input[name="trialResult"]').forEach(radio => {
@@ -653,10 +682,14 @@
     }
     function recordTrial(result) {
       alert("Trial Data Recorded: " + result);
-      const li = document.createElement('li');
-      li.textContent = result.charAt(0).toUpperCase() + result.slice(1);
-      li.className = result;
-      priorList.insertBefore(li, priorList.firstChild);
+      // Add a record with the current selections.
+      trialHistory.push({
+        area: areaSelect.value,
+        program: programSelect.value,
+        target: targetSelect.value,
+        result: result
+      });
+      updatePriorResults();
       randomizeTrialData();
       clearTrialSelection();
     }
@@ -689,23 +722,19 @@
 
     // Open the modal. For "add" mode (default is to add a new target record)
     function openEditModal(editType = "target", mode = "add", data = {}) {
-      // Set mode and type in hidden fields
       editModeField.value = mode;
       editTypeField.value = editType;
-      // Update the modal title accordingly
       if (mode === "add") {
         modalTitle.textContent = "Add New Target Record";
       } else if (mode === "edit") {
         modalTitle.textContent = "Edit " + editType.charAt(0).toUpperCase() + editType.slice(1);
       }
-      // Pre-fill fields based on data (if provided)
       if (editType === "contentArea") {
         editContentArea.value = data.area || "";
         editProgram.value = "";
         editTarget.value = "";
         editSD.value = "";
         editNote.value = "";
-        // Save original for reference
         originalAreaField.value = data.area || "";
       } else if (editType === "program") {
         editContentArea.value = data.area || "";
@@ -765,7 +794,6 @@
         areaDiv.innerHTML = `<span>Content Area: ${area}</span>
           <button class="editContentArea" data-area="${area}">Edit</button>
           <button class="deleteContentArea" data-area="${area}">Delete</button>`;
-        // Programs under this content area
         const programsDiv = document.createElement("div");
         Object.keys(appData[area].programs).forEach(prog => {
           const progDiv = document.createElement("div");
@@ -774,7 +802,6 @@
           progDiv.innerHTML = `<span>Program: ${prog}</span>
             <button class="editProgram" data-area="${area}" data-program="${prog}">Edit</button>
             <button class="deleteProgram" data-area="${area}" data-program="${prog}">Delete</button>`;
-          // Targets under this program
           const targetsDiv = document.createElement("div");
           Object.keys(appData[area].programs[prog].targets).forEach(targ => {
             const targData = appData[area].programs[prog].targets[targ];
@@ -796,8 +823,8 @@
     // Handler for form submission (Add/Edit)
     editForm.addEventListener('submit', function(e) {
       e.preventDefault();
-      const mode = editModeField.value;         // "add" or "edit"
-      const type = editTypeField.value;           // "contentArea", "program", or "target"
+      const mode = editModeField.value;
+      const type = editTypeField.value;
       const newArea = editContentArea.value.trim();
       const newProg = editProgram.value.trim();
       const newTarget = editTarget.value.trim();
