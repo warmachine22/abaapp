@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Autism Data Collection Mockup</title>
+  <title>Autism Data Collection Demo</title>
   <style>
+    /* Global Reset */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -21,12 +22,12 @@
       padding: 1rem;
     }
 
-    /* Hide the top section by default */
+    /* Top section hidden by default */
     #topSection {
       display: none;
     }
 
-    /* Drop-downs stacked vertically */
+    /* Dropdowns layout */
     .dropdowns {
       display: flex;
       flex-direction: column;
@@ -44,10 +45,10 @@
       margin-bottom: 0.3rem;
     }
     .dropdown-label-and-toggle .switch {
-      order: 1; /* Switch on the left */
+      order: 1; /* Switch on left */
     }
     .dropdown-label-and-toggle label:not(.switch) {
-      order: 2; /* Text label on the right */
+      order: 2;
       font-weight: bold;
     }
     .dropdown-row select {
@@ -61,43 +62,45 @@
     .switch {
       position: relative;
       display: inline-block;
-      width: 60px;    /* Enough space for "UNLOCK" text */
+      width: 60px;
       height: 24px;
     }
     .switch input {
-      opacity: 0;     /* Hide the checkbox */
+      opacity: 0;
       width: 0;
       height: 0;
     }
     .slider {
       position: absolute;
       cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #fff; 
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #fff;
       border: 1px solid #ccc;
-      border-radius: 24px; 
+      border-radius: 24px;
       transition: 0.4s;
     }
-    /* Using :before to show "UNLOCK" or "LOCK" text */
     .slider:before {
       position: absolute;
       left: 4px;
       top: 3px;
-      font-size: 10px;  
+      font-size: 10px;
       font-family: Arial, sans-serif;
-      color: #000; 
-      content: 'UNLOCK';  /* Default text when unchecked */
+      color: #000;
+      content: 'UNLOCK';  /* default when unchecked */
       transition: 0.4s;
     }
     input:checked + .slider {
-      background-color: #c8e6c9; /* Light green when locked */
+      background-color: #c8e6c9;
     }
     input:checked + .slider:before {
       content: 'LOCK';
       transform: translateX(14px);
     }
 
-    /* SD & Notes stacked */
+    /* Instructions / SD & Notes */
     .instructions {
       display: flex;
       flex-direction: column;
@@ -107,11 +110,9 @@
       font-weight: bold;
       margin-bottom: 0.5rem;
     }
-
-    /* Three buttons: "View Details", "Add/Edit Program", "Select Random" */
     .desc-buttons {
       display: flex;
-      flex-wrap: wrap;  /* wrap if screen too narrow */
+      flex-wrap: wrap;
       gap: 0.5rem;
       margin-bottom: 1rem;
     }
@@ -122,12 +123,11 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      white-space: nowrap; /* keep text on one line */
+      white-space: nowrap;
     }
     .desc-buttons button:hover {
       background: #0277bd;
     }
-
     .instructions label {
       font-weight: bold;
       margin-bottom: 0.25rem;
@@ -140,14 +140,13 @@
       resize: vertical;
     }
 
-    /* Always 2 columns for trial results */
+    /* Two-column layout for trial result buttons */
     .trial-results {
       display: flex;
       flex-direction: row;
-      flex-wrap: nowrap;       
       gap: 1rem;
       margin-bottom: 1rem;
-      overflow-x: auto;        /* Horizontal scroll if screen too narrow */
+      overflow-x: auto;
     }
     .trial-results .column {
       width: 50%;
@@ -155,24 +154,15 @@
       flex-direction: column;
       gap: 0.5rem;
     }
-
-    /* Left column top: Incorrect; Right column top: Independent */
-    label.incorrect {
-      background-color: #ffcdd2; /* Light red */
-    }
-    label.independent {
-      background-color: #c8f7c5; /* Light green */
-    }
+    /* Color coding for trial results */
+    label.incorrect { background-color: #ffcdd2; }
+    label.independent { background-color: #c8f7c5; }
     label.verbal,
     label.prompted,
     label.modeling,
     label.gestural,
     label.partialPhysical,
-    label.fullPhysical {
-      background-color: #fff9c4; /* Light yellow */
-    }
-
-    /* Common styling for trial result labels */
+    label.fullPhysical { background-color: #fff9c4; }
     .trial-results label {
       display: flex;
       align-items: center;
@@ -186,10 +176,10 @@
       transform: scale(1.2);
     }
     .trial-results label:hover {
-      opacity: 0.9; 
+      opacity: 0.9;
     }
 
-    /* Prior results: single column */
+    /* Prior results (history) */
     .prior-results {
       margin-bottom: 1rem;
     }
@@ -199,13 +189,14 @@
     }
     .prior-list {
       list-style: none;
+      padding: 0;
     }
     .prior-list li {
       margin-bottom: 0.5rem;
       padding: 0.4rem;
       border-radius: 4px;
     }
-    /* Color scheme for prior results */
+    /* Same color classes for history */
     .verbal { background-color: #fff9c4; }
     .prompted { background-color: #fff9c4; }
     .modeling { background-color: #fff9c4; }
@@ -215,18 +206,69 @@
     .independent { background-color: #c8f7c5; }
     .incorrect { background-color: #ffcdd2; }
 
+    /********************************************************
+     * Modal Styles for Add/Edit Interface
+     ********************************************************/
+    .modal {
+      display: none; 
+      position: fixed; 
+      z-index: 1000; 
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 90%;
+      max-width: 600px;
+      border-radius: 4px;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+    }
+    /* Tree view styling inside the modal */
+    #dataTree {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 1rem;
+      border: 1px solid #ccc;
+      padding: 0.5rem;
+      background: #fff;
+    }
+    .tree-item {
+      margin-left: 1rem;
+      margin-top: 0.5rem;
+    }
+    .tree-item > span {
+      font-weight: bold;
+    }
+    .tree-item button {
+      margin-left: 0.5rem;
+      font-size: 0.8rem;
+      padding: 0.2rem 0.5rem;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Hidden top section by default -->
+    <!-- Top section (child name and dropdowns) -->
     <div id="topSection">
-      <!-- Header / Child Name -->
       <header>
         <h1>Child Name: Joe Smith</h1>
       </header>
-
-      <!-- Drop-downs with toggle switches -->
       <div class="dropdowns">
         <!-- Content Area -->
         <div class="dropdown-row">
@@ -237,11 +279,7 @@
             </label>
             <label for="contentAreaSelect">Content Area</label>
           </div>
-          <select id="contentAreaSelect">
-            <option value="visual">Visual - Performance</option>
-            <option value="language">Language - Receptive</option>
-            <option value="social">Social Skills</option>
-          </select>
+          <select id="contentAreaSelect"></select>
         </div>
         <!-- Program -->
         <div class="dropdown-row">
@@ -252,11 +290,7 @@
             </label>
             <label for="programSelect">Program</label>
           </div>
-          <select id="programSelect">
-            <option value="singlePuzzle">Single Puzzle</option>
-            <option value="matching">Matching</option>
-            <option value="imitation">Imitation</option>
-          </select>
+          <select id="programSelect"></select>
         </div>
         <!-- Target -->
         <div class="dropdown-row">
@@ -267,40 +301,29 @@
             </label>
             <label for="targetSelect">Target</label>
           </div>
-          <select id="targetSelect">
-            <option value="puzzle1">Puzzle - 1 piece</option>
-            <option value="puzzle2">Puzzle - 2 pieces</option>
-            <option value="shapeSorting">Shape Sorting</option>
-          </select>
+          <select id="targetSelect"></select>
         </div>
       </div>
     </div>
-    <!-- /#topSection -->
+    <!-- End topSection -->
 
-    <!-- SD & Notes stacked -->
+    <!-- Instructions and SD/Notes -->
     <div class="instructions">
-      <!-- Dynamic description -->
       <p id="selectedDescription" class="chosen-description"></p>
-
-      <!-- Buttons below the description -->
       <div class="desc-buttons">
         <button id="toggleDetailsBtn">View Details</button>
         <button id="addEditProgramBtn">Add/Edit Program</button>
         <button id="selectRandomBtn">Select Random</button>
       </div>
-
       <label for="sdInput">SD (Instruction)</label>
-      <textarea id="sdInput" rows="2" 
-        placeholder='"Do the puzzle" while placing the piece...'></textarea>
-
+      <textarea id="sdInput" rows="2" placeholder='"Do the puzzle" while placing the piece...'></textarea>
       <label for="notesArea">Note</label>
-      <textarea id="notesArea" rows="2" 
-        placeholder="Notes: Work Harder, Work Harder..."></textarea>
+      <textarea id="notesArea" rows="2" placeholder="Notes: Work Harder, Work Harder..."></textarea>
     </div>
 
-    <!-- 2-column layout for trial result / prompt level (always 2 columns) -->
+    <!-- Trial Results (choose the trial outcome) -->
     <div class="trial-results">
-      <!-- Left column: Incorrect at top -->
+      <!-- Left Column -->
       <div class="column">
         <label class="incorrect">
           <input type="radio" name="trialResult" value="incorrect" />
@@ -319,7 +342,7 @@
           Modeling
         </label>
       </div>
-      <!-- Right column: Independent at top -->
+      <!-- Right Column -->
       <div class="column">
         <label class="independent">
           <input type="radio" name="trialResult" value="independent" />
@@ -340,55 +363,256 @@
       </div>
     </div>
 
-    <!-- Prior results (single column) -->
+    <!-- Prior Results / Trial History -->
     <div class="prior-results">
       <h2>Prior Results</h2>
-      <ul class="prior-list">
-        <li class="independent">Independent</li>
-        <li class="verbal">Verbal</li>
-        <li class="incorrect">Incorrect</li>
-        <li class="incorrect">Incorrect</li>
-        <li class="independent">Independent</li>
+      <ul class="prior-list" id="priorList">
+        <!-- Recorded trial outcomes will be appended here -->
       </ul>
     </div>
-  </div> <!-- end .container -->
+  </div>
+
+  <!-- =======================================================================
+       Modal for Add/Edit Interface
+       ======================================================================= -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span id="closeModal" class="close">&times;</span>
+      <h2 id="modalTitle">Add New Target Record</h2>
+      <form id="editForm">
+        <!-- Hidden fields to track mode and type -->
+        <input type="hidden" id="editMode" value="add" />
+        <input type="hidden" id="editType" value="target" />
+        <input type="hidden" id="originalArea" value="" />
+        <input type="hidden" id="originalProgram" value="" />
+        <input type="hidden" id="originalTarget" value="" />
+        
+        <label for="editContentArea">Content Area</label>
+        <input type="text" id="editContentArea" required />
+        
+        <label for="editProgram">Program</label>
+        <input type="text" id="editProgram" required />
+        
+        <label for="editTarget">Target</label>
+        <input type="text" id="editTarget" required />
+        
+        <label for="editSD">SD (Instruction)</label>
+        <textarea id="editSD" required></textarea>
+        
+        <label for="editNote">Note</label>
+        <textarea id="editNote" required></textarea>
+        
+        <button type="submit" id="saveEditBtn">Save</button>
+        <button type="button" id="cancelEditBtn">Cancel</button>
+      </form>
+      <hr/>
+      <h3>Existing Data</h3>
+      <div id="dataTree">
+        <!-- Hierarchical view of appData will be generated here -->
+      </div>
+    </div>
+  </div>
 
   <script>
-    // Dynamically update description: "[Area] -- [Program] -- [Target]"
-    function updateDescription() {
-      const areaSelect = document.getElementById('contentAreaSelect');
-      const programSelect = document.getElementById('programSelect');
-      const targetSelect = document.getElementById('targetSelect');
+    /********************************************************
+     * SIMULATED DATA STRUCTURE
+     * Hierarchy: Content Area → Programs → Targets
+     * Only targets have an SD and Note.
+     ********************************************************/
+    let appData = {
+      "Visual - Performance": {
+        programs: {
+          "Single Puzzle": {
+            targets: {
+              "Puzzle - 1 piece": {
+                sd: '"Do the puzzle" while placing the piece...',
+                note: 'Use both hands.'
+              },
+              "Puzzle - 2 pieces": {
+                sd: '"Do the puzzle" with two pieces...',
+                note: 'Encourage problem solving.'
+              }
+            }
+          },
+          "Matching": {
+            targets: {
+              "Color Matching": {
+                sd: '"Match the colors"',
+                note: 'Use visual cues.'
+              }
+            }
+          }
+        }
+      },
+      "Language - Receptive": {
+        programs: {
+          "Imitation": {
+            targets: {
+              "Tracing Letters": {
+                sd: '"Trace the letters"',
+                note: 'Focus on letter shapes.'
+              }
+            }
+          },
+          "Labeling (Tacts)": {
+            targets: {
+              "Conversation Skills": {
+                sd: '"Talk about daily activities"',
+                note: 'Prompt with questions.'
+              }
+            }
+          }
+        }
+      },
+      "Social Skills": {
+        programs: {
+          "Social Greetings": {
+            targets: {
+              "Greeting by name": {
+                sd: '"Say hello to your friend"',
+                note: 'Maintain eye contact.'
+              }
+            }
+          },
+          "Adaptive Skills": {
+            targets: {
+              "Sharing Toys": {
+                sd: '"Share your toys with a peer"',
+                note: 'Praise sharing behavior.'
+              }
+            }
+          }
+        }
+      }
+    };
 
-      const areaText = areaSelect 
-        ? areaSelect.options[areaSelect.selectedIndex].text 
-        : '';
-      const programText = programSelect 
-        ? programSelect.options[programSelect.selectedIndex].text 
-        : '';
-      const targetText = targetSelect 
-        ? targetSelect.options[targetSelect.selectedIndex].text 
-        : '';
+    /********************************************************
+     * FUNCTIONS FOR MAIN INTERFACE (Dropdowns, SD/Notes,
+     * Description, and Trial Data Recording)
+     ********************************************************/
+    const areaSelect = document.getElementById('contentAreaSelect');
+    const programSelect = document.getElementById('programSelect');
+    const targetSelect = document.getElementById('targetSelect');
+    const sdInput = document.getElementById('sdInput');
+    const notesArea = document.getElementById('notesArea');
+    const descriptionP = document.getElementById('selectedDescription');
+    const priorList = document.getElementById('priorList');
 
-      document.getElementById('selectedDescription').textContent =
-        areaText + ' -- ' + programText + ' -- ' + targetText;
+    // Populate the Content Area dropdown from appData keys
+    function populateContentAreas() {
+      areaSelect.innerHTML = "";
+      Object.keys(appData).forEach(area => {
+        const opt = document.createElement("option");
+        opt.value = area;
+        opt.textContent = area;
+        areaSelect.appendChild(opt);
+      });
     }
-
-    // Listen for changes on each dropdown
-    [ 'contentAreaSelect', 'programSelect', 'targetSelect' ].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.addEventListener('change', updateDescription);
+    // Update Program dropdown based on selected content area
+    function updateProgramSelect() {
+      const selectedArea = areaSelect.value;
+      programSelect.innerHTML = "";
+      if (appData[selectedArea]) {
+        Object.keys(appData[selectedArea].programs).forEach(prog => {
+          const opt = document.createElement("option");
+          opt.value = prog;
+          opt.textContent = prog;
+          programSelect.appendChild(opt);
+        });
+      }
+    }
+    // Update Target dropdown based on selected program and content area
+    function updateTargetSelect() {
+      const selectedArea = areaSelect.value;
+      const selectedProgram = programSelect.value;
+      targetSelect.innerHTML = "";
+      if (appData[selectedArea] && appData[selectedArea].programs[selectedProgram]) {
+        Object.keys(appData[selectedArea].programs[selectedProgram].targets).forEach(target => {
+          const opt = document.createElement("option");
+          opt.value = target;
+          opt.textContent = target;
+          targetSelect.appendChild(opt);
+        });
+      }
+    }
+    // Update the SD and Note fields based on the current target
+    function updateInstructions() {
+      const area = areaSelect.value;
+      const prog = programSelect.value;
+      const targ = targetSelect.value;
+      if (area && prog && targ) {
+        const targetData = appData[area].programs[prog].targets[targ];
+        sdInput.value = targetData.sd;
+        notesArea.value = targetData.note;
+      }
+    }
+    // Update the description text (Content Area -- Program -- Target)
+    function updateDescription() {
+      descriptionP.textContent = areaSelect.value + ' -- ' + programSelect.value + ' -- ' + targetSelect.value;
+    }
+    // Event Listeners for main dropdowns
+    areaSelect.addEventListener('change', () => {
+      updateProgramSelect();
+      updateTargetSelect();
+      updateInstructions();
+      updateDescription();
     });
-
-    // Initialize once on load
+    programSelect.addEventListener('change', () => {
+      updateTargetSelect();
+      updateInstructions();
+      updateDescription();
+    });
+    targetSelect.addEventListener('change', () => {
+      updateInstructions();
+      updateDescription();
+    });
+    // Initialize main interface
+    populateContentAreas();
+    updateProgramSelect();
+    updateTargetSelect();
+    updateInstructions();
     updateDescription();
 
-    // Toggle "View Details"/"Hide Details"
+    /********************************************************
+     * "Select Random" functionality – randomize each dropdown
+     * unless its associated toggle is locked.
+     ********************************************************/
+    function randomizeTrialData() {
+      const lockArea = document.getElementById('lockContentArea').checked;
+      const lockProg = document.getElementById('lockProgram').checked;
+      const lockTarg = document.getElementById('lockTarget').checked;
+      if (!lockArea) {
+        const areas = Object.keys(appData);
+        const randomArea = areas[Math.floor(Math.random() * areas.length)];
+        areaSelect.value = randomArea;
+        updateProgramSelect();
+      }
+      if (!lockProg) {
+        const selectedArea = areaSelect.value;
+        const programs = Object.keys(appData[selectedArea].programs);
+        const randomProg = programs[Math.floor(Math.random() * programs.length)];
+        programSelect.value = randomProg;
+        updateTargetSelect();
+      }
+      if (!lockTarg) {
+        const selectedArea = areaSelect.value;
+        const selectedProg = programSelect.value;
+        const targets = Object.keys(appData[selectedArea].programs[selectedProg].targets);
+        const randomTarget = targets[Math.floor(Math.random() * targets.length)];
+        targetSelect.value = randomTarget;
+      }
+      updateInstructions();
+      updateDescription();
+    }
+    document.getElementById('selectRandomBtn').addEventListener('click', randomizeTrialData);
+
+    /********************************************************
+     * "View Details" toggles the top section (dropdowns etc.)
+     ********************************************************/
     const toggleBtn = document.getElementById('toggleDetailsBtn');
     const topSection = document.getElementById('topSection');
-
     toggleBtn.addEventListener('click', () => {
-      if (topSection.style.display === 'none') {
+      if (topSection.style.display === 'none' || topSection.style.display === '') {
         topSection.style.display = 'block';
         toggleBtn.textContent = 'Hide Details';
       } else {
@@ -397,17 +621,335 @@
       }
     });
 
-    // "Select Random" button
-    document.getElementById('selectRandomBtn').addEventListener('click', () => {
-      alert('Select Random clicked!');
+    /********************************************************
+     * Trial Data Recording:
+     * When a trial result radio button is selected, record the trial,
+     * show a popup, append the result to the history, then “refresh”
+     * (randomize unlocked fields) and clear the radio selection.
+     ********************************************************/
+    function clearTrialSelection() {
+      document.querySelectorAll('input[name="trialResult"]').forEach(radio => {
+        radio.checked = false;
+      });
+    }
+    function recordTrial(result) {
+      alert("Trial Data Recorded: " + result);
+      const li = document.createElement('li');
+      li.textContent = result.charAt(0).toUpperCase() + result.slice(1);
+      li.className = result;
+      priorList.insertBefore(li, priorList.firstChild);
+      randomizeTrialData();
+      clearTrialSelection();
+    }
+    document.querySelectorAll('input[name="trialResult"]').forEach(radio => {
+      radio.addEventListener('change', function(e) {
+        recordTrial(e.target.value);
+      });
     });
 
-    // "Add/Edit Program" button
-    document.getElementById('addEditProgramBtn').addEventListener('click', () => {
-      alert('Add/Edit Program clicked!');
+    /********************************************************
+     * MODAL (Add/Edit Interface) FUNCTIONS
+     ********************************************************/
+    const editModal = document.getElementById('editModal');
+    const closeModalBtn = document.getElementById('closeModal');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const editForm = document.getElementById('editForm');
+    const modalTitle = document.getElementById('modalTitle');
+
+    // Input fields for the form
+    const editContentArea = document.getElementById('editContentArea');
+    const editProgram = document.getElementById('editProgram');
+    const editTarget = document.getElementById('editTarget');
+    const editSD = document.getElementById('editSD');
+    const editNote = document.getElementById('editNote');
+    const editModeField = document.getElementById('editMode');
+    const editTypeField = document.getElementById('editType');
+    const originalAreaField = document.getElementById('originalArea');
+    const originalProgramField = document.getElementById('originalProgram');
+    const originalTargetField = document.getElementById('originalTarget');
+
+    // Open the modal. For "add" mode (default is to add a new target record)
+    function openEditModal(editType = "target", mode = "add", data = {}) {
+      // Set mode and type in hidden fields
+      editModeField.value = mode;
+      editTypeField.value = editType;
+      // Update the modal title accordingly
+      if (mode === "add") {
+        modalTitle.textContent = "Add New Target Record";
+      } else if (mode === "edit") {
+        modalTitle.textContent = "Edit " + editType.charAt(0).toUpperCase() + editType.slice(1);
+      }
+      // Pre-fill fields based on data (if provided)
+      if (editType === "contentArea") {
+        editContentArea.value = data.area || "";
+        editProgram.value = "";
+        editTarget.value = "";
+        editSD.value = "";
+        editNote.value = "";
+        // Save original for reference
+        originalAreaField.value = data.area || "";
+      } else if (editType === "program") {
+        editContentArea.value = data.area || "";
+        editProgram.value = data.program || "";
+        editTarget.value = "";
+        editSD.value = "";
+        editNote.value = "";
+        originalAreaField.value = data.area || "";
+        originalProgramField.value = data.program || "";
+      } else if (editType === "target") {
+        editContentArea.value = data.area || "";
+        editProgram.value = data.program || "";
+        editTarget.value = data.target || "";
+        editSD.value = data.sd || "";
+        editNote.value = data.note || "";
+        originalAreaField.value = data.area || "";
+        originalProgramField.value = data.program || "";
+        originalTargetField.value = data.target || "";
+      }
+      updateFormFieldsForEditType(editType);
+      updateDataTree();
+      editModal.style.display = "block";
+    }
+    // Close the modal
+    function closeEditModal() {
+      editModal.style.display = "none";
+    }
+    // Update form field enable/disable state based on editType
+    function updateFormFieldsForEditType(editType) {
+      if (editType === "contentArea") {
+        editContentArea.disabled = false;
+        editProgram.disabled = true;
+        editTarget.disabled = true;
+        editSD.disabled = true;
+        editNote.disabled = true;
+      } else if (editType === "program") {
+        editContentArea.disabled = true; // content area is fixed
+        editProgram.disabled = false;
+        editTarget.disabled = true;
+        editSD.disabled = true;
+        editNote.disabled = true;
+      } else if (editType === "target") {
+        editContentArea.disabled = false;
+        editProgram.disabled = false;
+        editTarget.disabled = false;
+        editSD.disabled = false;
+        editNote.disabled = false;
+      }
+    }
+
+    // Build the hierarchical tree view of appData inside the modal
+    function updateDataTree() {
+      const treeDiv = document.getElementById('dataTree');
+      treeDiv.innerHTML = "";
+      Object.keys(appData).forEach(area => {
+        const areaDiv = document.createElement("div");
+        areaDiv.className = "tree-item";
+        areaDiv.innerHTML = `<span>Content Area: ${area}</span>
+          <button class="editContentArea" data-area="${area}">Edit</button>
+          <button class="deleteContentArea" data-area="${area}">Delete</button>`;
+        // Programs under this content area
+        const programsDiv = document.createElement("div");
+        Object.keys(appData[area].programs).forEach(prog => {
+          const progDiv = document.createElement("div");
+          progDiv.className = "tree-item";
+          progDiv.style.marginLeft = "1rem";
+          progDiv.innerHTML = `<span>Program: ${prog}</span>
+            <button class="editProgram" data-area="${area}" data-program="${prog}">Edit</button>
+            <button class="deleteProgram" data-area="${area}" data-program="${prog}">Delete</button>`;
+          // Targets under this program
+          const targetsDiv = document.createElement("div");
+          Object.keys(appData[area].programs[prog].targets).forEach(targ => {
+            const targData = appData[area].programs[prog].targets[targ];
+            const targDiv = document.createElement("div");
+            targDiv.className = "tree-item";
+            targDiv.style.marginLeft = "2rem";
+            targDiv.innerHTML = `<span>Target: ${targ} (SD: ${targData.sd}, Note: ${targData.note})</span>
+              <button class="editTarget" data-area="${area}" data-program="${prog}" data-target="${targ}">Edit</button>
+              <button class="deleteTarget" data-area="${area}" data-program="${prog}" data-target="${targ}">Delete</button>`;
+            targetsDiv.appendChild(targDiv);
+          });
+          progDiv.appendChild(targetsDiv);
+          programsDiv.appendChild(progDiv);
+        });
+        areaDiv.appendChild(programsDiv);
+        treeDiv.appendChild(areaDiv);
+      });
+    }
+
+    // Handler for form submission (Add/Edit)
+    editForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const mode = editModeField.value;         // "add" or "edit"
+      const type = editTypeField.value;           // "contentArea", "program", or "target"
+      const newArea = editContentArea.value.trim();
+      const newProg = editProgram.value.trim();
+      const newTarget = editTarget.value.trim();
+      const newSD = editSD.value.trim();
+      const newNote = editNote.value.trim();
+      if (type === "contentArea") {
+        if (mode === "edit") {
+          const origArea = originalAreaField.value;
+          if (origArea !== newArea) {
+            // Rename: copy and delete old key
+            appData[newArea] = appData[origArea];
+            delete appData[origArea];
+          }
+        }
+      } else if (type === "program") {
+        const areaKey = newArea;
+        if (!appData[areaKey]) {
+          alert("Content Area does not exist.");
+          return;
+        }
+        if (mode === "edit") {
+          const origProg = originalProgramField.value;
+          if (origProg !== newProg) {
+            appData[areaKey].programs[newProg] = appData[areaKey].programs[origProg];
+            delete appData[areaKey].programs[origProg];
+          }
+        }
+      } else if (type === "target") {
+        // For targets, create content area and program if necessary
+        if (!appData[newArea]) {
+          appData[newArea] = { programs: {} };
+        }
+        if (!appData[newArea].programs[newProg]) {
+          appData[newArea].programs[newProg] = { targets: {} };
+        }
+        if (mode === "add") {
+          if (appData[newArea].programs[newProg].targets[newTarget]) {
+            if (!confirm("Target already exists. Overwrite?")) return;
+          }
+          appData[newArea].programs[newProg].targets[newTarget] = {
+            sd: newSD,
+            note: newNote
+          };
+        } else if (mode === "edit") {
+          // Remove the old target if keys have changed
+          const origArea = originalAreaField.value;
+          const origProg = originalProgramField.value;
+          const origTarget = originalTargetField.value;
+          if (origArea && origProg && origTarget) {
+            delete appData[origArea].programs[origProg].targets[origTarget];
+            // Clean up empty program/content area if desired
+            if (Object.keys(appData[origArea].programs[origProg].targets).length === 0) {
+              delete appData[origArea].programs[origProg];
+              if (Object.keys(appData[origArea].programs).length === 0) {
+                delete appData[origArea];
+              }
+            }
+          }
+          // Add the (possibly new) target
+          if (!appData[newArea]) {
+            appData[newArea] = { programs: {} };
+          }
+          if (!appData[newArea].programs[newProg]) {
+            appData[newArea].programs[newProg] = { targets: {} };
+          }
+          appData[newArea].programs[newProg].targets[newTarget] = {
+            sd: newSD,
+            note: newNote
+          };
+        }
+      }
+      // Update the main interface dropdowns and tree view
+      populateContentAreas();
+      updateProgramSelect();
+      updateTargetSelect();
+      updateInstructions();
+      updateDescription();
+      updateDataTree();
+      closeEditModal();
+    });
+
+    // Cancel button and close icon event listeners
+    cancelEditBtn.addEventListener('click', closeEditModal);
+    closeModalBtn.addEventListener('click', closeEditModal);
+
+    // Event delegation for tree view buttons (Edit and Delete)
+    document.getElementById('dataTree').addEventListener('click', function(e) {
+      const targetEl = e.target;
+      if (targetEl.tagName.toLowerCase() !== "button") return;
+      const btnClass = targetEl.className;
+      if (btnClass.indexOf("editContentArea") !== -1) {
+        const area = targetEl.getAttribute("data-area");
+        openEditModal("contentArea", "edit", { area });
+      } else if (btnClass.indexOf("deleteContentArea") !== -1) {
+        const area = targetEl.getAttribute("data-area");
+        if (confirm("Delete content area and all its programs/targets?")) {
+          delete appData[area];
+          populateContentAreas();
+          updateProgramSelect();
+          updateTargetSelect();
+          updateInstructions();
+          updateDescription();
+          updateDataTree();
+        }
+      } else if (btnClass.indexOf("editProgram") !== -1) {
+        const area = targetEl.getAttribute("data-area");
+        const prog = targetEl.getAttribute("data-program");
+        openEditModal("program", "edit", { area, program: prog });
+      } else if (btnClass.indexOf("deleteProgram") !== -1) {
+        const area = targetEl.getAttribute("data-area");
+        const prog = targetEl.getAttribute("data-program");
+        if (confirm("Delete program and all its targets?")) {
+          delete appData[area].programs[prog];
+          // Clean up if no programs remain
+          if (Object.keys(appData[area].programs).length === 0) {
+            delete appData[area];
+          }
+          populateContentAreas();
+          updateProgramSelect();
+          updateTargetSelect();
+          updateInstructions();
+          updateDescription();
+          updateDataTree();
+        }
+      } else if (btnClass.indexOf("editTarget") !== -1) {
+        const area = targetEl.getAttribute("data-area");
+        const prog = targetEl.getAttribute("data-program");
+        const targ = targetEl.getAttribute("data-target");
+        const targData = appData[area].programs[prog].targets[targ];
+        openEditModal("target", "edit", { area, program: prog, target: targ, sd: targData.sd, note: targData.note });
+      } else if (btnClass.indexOf("deleteTarget") !== -1) {
+        const area = targetEl.getAttribute("data-area");
+        const prog = targetEl.getAttribute("data-program");
+        const targ = targetEl.getAttribute("data-target");
+        if (confirm("Delete target?")) {
+          delete appData[area].programs[prog].targets[targ];
+          // Clean up empty program/content area if needed
+          if (Object.keys(appData[area].programs[prog].targets).length === 0) {
+            delete appData[area].programs[prog];
+            if (Object.keys(appData[area].programs).length === 0) {
+              delete appData[area];
+            }
+          }
+          populateContentAreas();
+          updateProgramSelect();
+          updateTargetSelect();
+          updateInstructions();
+          updateDescription();
+          updateDataTree();
+        }
+      }
+    });
+
+    /********************************************************
+     * "Add/Edit Program" button now opens the modal in add mode.
+     * (By default, we assume adding a new target record.)
+     ********************************************************/
+    document.getElementById('addEditProgramBtn').addEventListener('click', function() {
+      // Open modal in "add" mode for a target record.
+      openEditModal("target", "add", {});
+    });
+
+    // Clicking outside the modal will also close it.
+    window.addEventListener('click', function(e) {
+      if (e.target == editModal) {
+        closeEditModal();
+      }
     });
   </script>
 </body>
 </html>
-
 
