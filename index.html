@@ -56,48 +56,44 @@
     }
 
     /********************************************************
-     * Smaller Toggle Switch Styling for Better Mobile Fit
+     * Toggle Switch: Using text "LOCK" / "UNLOCK"
      ********************************************************/
     .switch {
       position: relative;
       display: inline-block;
-      /* Reduced width/height for smaller toggle */
-      width: 36px;
-      height: 20px;
+      width: 60px;    /* Enough space for "UNLOCK" text */
+      height: 24px;
     }
     .switch input {
-      opacity: 0;
+      opacity: 0;     /* Hide the checkbox */
       width: 0;
       height: 0;
     }
-
     .slider {
       position: absolute;
       cursor: pointer;
       top: 0; left: 0; right: 0; bottom: 0;
       background-color: #fff; 
       border: 1px solid #ccc;
-      border-radius: 20px; 
+      border-radius: 24px; 
       transition: 0.4s;
     }
-    /* The lock/unlock icon, smaller font size */
+    /* Using :before to show "UNLOCK" or "LOCK" text */
     .slider:before {
       position: absolute;
-      left: 3px;
-      top: 2px;
-      font-size: 12px;  /* Smaller icon font size */
-      font-family: "Segoe UI Symbol", "Apple Symbols", "Noto Sans Symbols", sans-serif;
+      left: 4px;
+      top: 3px;
+      font-size: 10px;  
+      font-family: Arial, sans-serif;
       color: #000; 
-      content: '🔓';  /* Unlocked by default */
+      content: 'UNLOCK';  /* Default text when unchecked */
       transition: 0.4s;
     }
-
     input:checked + .slider {
       background-color: #c8e6c9; /* Light green when locked */
     }
     input:checked + .slider:before {
-      content: '🔒';
-      /* Adjust how far the icon moves in smaller switch */
+      content: 'LOCK';
       transform: translateX(14px);
     }
 
@@ -112,9 +108,10 @@
       margin-bottom: 0.5rem;
     }
 
-    /* Two buttons: "View Details" & "Select Random" */
+    /* Three buttons: "View Details", "Add/Edit Program", "Select Random" */
     .desc-buttons {
       display: flex;
+      flex-wrap: wrap;  /* wrap if screen too narrow */
       gap: 0.5rem;
       margin-bottom: 1rem;
     }
@@ -125,6 +122,7 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
+      white-space: nowrap; /* keep text on one line */
     }
     .desc-buttons button:hover {
       background: #0277bd;
@@ -146,10 +144,10 @@
     .trial-results {
       display: flex;
       flex-direction: row;
-      flex-wrap: nowrap;       /* No wrap -> always two columns */
+      flex-wrap: nowrap;       
       gap: 1rem;
       margin-bottom: 1rem;
-      overflow-x: auto;        /* Horizontal scroll if too narrow */
+      overflow-x: auto;        /* Horizontal scroll if screen too narrow */
     }
     .trial-results .column {
       width: 50%;
@@ -158,7 +156,7 @@
       gap: 0.5rem;
     }
 
-    /* Reordered so "Incorrect" is top of left column, "Independent" top right */
+    /* Left column top: Incorrect; Right column top: Independent */
     label.incorrect {
       background-color: #ffcdd2; /* Light red */
     }
@@ -287,6 +285,7 @@
       <!-- Buttons below the description -->
       <div class="desc-buttons">
         <button id="toggleDetailsBtn">View Details</button>
+        <button id="addEditProgramBtn">Add/Edit Program</button>
         <button id="selectRandomBtn">Select Random</button>
       </div>
 
@@ -398,11 +397,17 @@
       }
     });
 
-    // "Select Random" example
+    // "Select Random" button
     document.getElementById('selectRandomBtn').addEventListener('click', () => {
       alert('Select Random clicked!');
+    });
+
+    // "Add/Edit Program" button
+    document.getElementById('addEditProgramBtn').addEventListener('click', () => {
+      alert('Add/Edit Program clicked!');
     });
   </script>
 </body>
 </html>
+
 
