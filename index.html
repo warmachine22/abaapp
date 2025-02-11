@@ -575,31 +575,56 @@
 
     /********************************************************
      * "Select Random" functionality – randomize each dropdown
-     * unless its associated toggle is locked.
+     * based on the effective lock settings.
+     *
+     * Hierarchy:
+     * - If target is locked, do nothing (the entire branch is fixed).
+     * - Else if program is locked, randomize only the target.
+     * - Else if content area is locked, randomize program (within the locked content area)
+     *   and then randomize target.
+     * - Else (nothing locked) randomize content area, then program, then target.
      ********************************************************/
     function randomizeTrialData() {
       const lockArea = document.getElementById('lockContentArea').checked;
       const lockProg = document.getElementById('lockProgram').checked;
       const lockTarg = document.getElementById('lockTarget').checked;
-      if (!lockArea) {
-        const areas = Object.keys(appData);
-        const randomArea = areas[Math.floor(Math.random() * areas.length)];
-        areaSelect.value = randomArea;
-        updateProgramSelect();
-      }
-      if (!lockProg) {
-        const selectedArea = areaSelect.value;
-        const programs = Object.keys(appData[selectedArea].programs);
-        const randomProg = programs[Math.floor(Math.random() * programs.length)];
-        programSelect.value = randomProg;
-        updateTargetSelect();
-      }
-      if (!lockTarg) {
+
+      if (lockTarg) {
+        // If target is locked, do nothing.
+      } else if (lockProg) {
+        // Program is locked; leave program (and its inherent content area) unchanged,
+        // and randomize only the target.
         const selectedArea = areaSelect.value;
         const selectedProg = programSelect.value;
         const targets = Object.keys(appData[selectedArea].programs[selectedProg].targets);
-        const randomTarget = targets[Math.floor(Math.random() * targets.length)];
-        targetSelect.value = randomTarget;
+        const randomIndex = Math.floor(Math.random() * targets.length);
+        targetSelect.value = targets[randomIndex];
+      } else if (lockArea) {
+        // Content area is locked; randomize program (within that area) and then target.
+        const lockedArea = areaSelect.value;
+        const programs = Object.keys(appData[lockedArea].programs);
+        const randomIndexProg = Math.floor(Math.random() * programs.length);
+        programSelect.value = programs[randomIndexProg];
+        updateTargetSelect();
+        const selectedProg = programSelect.value;
+        const targets = Object.keys(appData[lockedArea].programs[selectedProg].targets);
+        const randomIndexTarget = Math.floor(Math.random() * targets.length);
+        targetSelect.value = targets[randomIndexTarget];
+      } else {
+        // None are locked; randomize content area, then program, then target.
+        const areas = Object.keys(appData);
+        const randomIndexArea = Math.floor(Math.random() * areas.length);
+        areaSelect.value = areas[randomIndexArea];
+        updateProgramSelect();
+        const selectedArea = areaSelect.value;
+        const programs = Object.keys(appData[selectedArea].programs);
+        const randomIndexProg = Math.floor(Math.random() * programs.length);
+        programSelect.value = programs[randomIndexProg];
+        updateTargetSelect();
+        const selectedProg = programSelect.value;
+        const targets = Object.keys(appData[selectedArea].programs[selectedProg].targets);
+        const randomIndexTarget = Math.floor(Math.random() * targets.length);
+        targetSelect.value = targets[randomIndexTarget];
       }
       updateInstructions();
       updateDescription();
@@ -952,4 +977,3 @@
   </script>
 </body>
 </html>
-
