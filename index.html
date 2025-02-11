@@ -100,6 +100,17 @@
       flex-direction: column;
       margin-bottom: 1rem;
     }
+    /* Updated descriptive text styling */
+    #selectedDescription {
+      font-size: 1.5em;
+      text-align: center;
+      background-color: red;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 1rem;
+    }
+    /* Original class for descriptive text (if needed) */
     .chosen-description {
       font-weight: bold;
       margin-bottom: 0.5rem;
@@ -549,14 +560,11 @@
       const currentArea = areaSelect.value;
       const currentProgram = programSelect.value;
       const currentTarget = targetSelect.value;
-      // Filter trialHistory for entries matching the current selection.
       const filtered = trialHistory.filter(item => 
         item.area === currentArea && item.program === currentProgram && item.target === currentTarget
       );
-      // Get the most recent 5 (if there are more than 5)
       const lastFive = filtered.slice(-5);
       priorList.innerHTML = "";
-      // Display them in reverse order (most recent first)
       for (let i = lastFive.length - 1; i >= 0; i--) {
         const li = document.createElement('li');
         li.textContent = lastFive[i].result.charAt(0).toUpperCase() + lastFive[i].result.slice(1);
@@ -564,7 +572,7 @@
         priorList.appendChild(li);
       }
     }
-    // Event Listeners for main dropdowns (update instructions, description, and prior results when changed)
+    // Event Listeners for main dropdowns
     areaSelect.addEventListener('change', () => {
       updateProgramSelect();
       updateTargetSelect();
@@ -612,7 +620,6 @@
         // If target is locked, do nothing.
       }
       else if (lockProg) {
-        // Program is locked; randomize only the target within the fixed content area and program.
         const selectedArea = areaSelect.value;
         const selectedProg = programSelect.value;
         const targets = Object.keys(appData[selectedArea].programs[selectedProg].targets);
@@ -620,7 +627,6 @@
         targetSelect.value = targets[randomIndex];
       }
       else if (lockArea) {
-        // Content area is locked; randomize program (within that area) then target.
         const lockedArea = areaSelect.value;
         const programs = Object.keys(appData[lockedArea].programs);
         const randomIndexProg = Math.floor(Math.random() * programs.length);
@@ -632,7 +638,6 @@
         targetSelect.value = targets[randomIndexTarget];
       }
       else {
-        // None are locked; randomize content area, then program, then target.
         const areas = Object.keys(appData);
         const randomIndexArea = Math.floor(Math.random() * areas.length);
         areaSelect.value = areas[randomIndexArea];
@@ -672,8 +677,8 @@
      * Trial Data Recording:
      * When a trial result radio button is selected, record the trial,
      * show a popup, add the result (with the current area/program/target)
-     * to the trialHistory array, then update the Prior Results list (for the current target)
-     * before refreshing (randomizing unlocked fields) and clearing the radio selection.
+     * to trialHistory, update the Prior Results list, then refresh
+     * (randomize unlocked fields) and clear the radio selection.
      ********************************************************/
     function clearTrialSelection() {
       document.querySelectorAll('input[name="trialResult"]').forEach(radio => {
@@ -682,7 +687,6 @@
     }
     function recordTrial(result) {
       alert("Trial Data Recorded: " + result);
-      // Add a record with the current selections.
       trialHistory.push({
         area: areaSelect.value,
         program: programSelect.value,
@@ -720,7 +724,6 @@
     const originalProgramField = document.getElementById('originalProgram');
     const originalTargetField = document.getElementById('originalTarget');
 
-    // Open the modal. For "add" mode (default is to add a new target record)
     function openEditModal(editType = "target", mode = "add", data = {}) {
       editModeField.value = mode;
       editTypeField.value = editType;
@@ -758,11 +761,9 @@
       updateDataTree();
       editModal.style.display = "block";
     }
-    // Close the modal
     function closeEditModal() {
       editModal.style.display = "none";
     }
-    // Update form field enable/disable state based on editType
     function updateFormFieldsForEditType(editType) {
       if (editType === "contentArea") {
         editContentArea.disabled = false;
@@ -784,7 +785,6 @@
         editNote.disabled = false;
       }
     }
-    // Build the hierarchical tree view of appData inside the modal
     function updateDataTree() {
       const treeDiv = document.getElementById('dataTree');
       treeDiv.innerHTML = "";
@@ -820,7 +820,6 @@
         treeDiv.appendChild(areaDiv);
       });
     }
-    // Handler for form submission (Add/Edit)
     editForm.addEventListener('submit', function(e) {
       e.preventDefault();
       const mode = editModeField.value;
@@ -899,10 +898,8 @@
       updateDataTree();
       closeEditModal();
     });
-    // Cancel button and close icon event listeners
     cancelEditBtn.addEventListener('click', closeEditModal);
     closeModalBtn.addEventListener('click', closeEditModal);
-    // Event delegation for tree view buttons (Edit and Delete)
     document.getElementById('dataTree').addEventListener('click', function(e) {
       const targetEl = e.target;
       if (targetEl.tagName.toLowerCase() !== "button") return;
@@ -967,14 +964,9 @@
         }
       }
     });
-    /********************************************************
-     * "Add/Edit Program" button now opens the modal in add mode.
-     * (By default, adding a new target record.)
-     ********************************************************/
     document.getElementById('addEditProgramBtn').addEventListener('click', function() {
       openEditModal("target", "add", {});
     });
-    // Clicking outside the modal will also close it.
     window.addEventListener('click', function(e) {
       if (e.target == editModal) {
         closeEditModal();
