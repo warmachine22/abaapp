@@ -55,43 +55,50 @@
       padding: 0.3rem;
     }
 
-    /* Toggle switch styling */
+    /********************************************************
+     * Smaller Toggle Switch Styling for Better Mobile Fit
+     ********************************************************/
     .switch {
       position: relative;
       display: inline-block;
-      width: 40px;
-      height: 22px;
+      /* Reduced width/height for smaller toggle */
+      width: 36px;
+      height: 20px;
     }
     .switch input {
       opacity: 0;
       width: 0;
       height: 0;
     }
+
     .slider {
       position: absolute;
       cursor: pointer;
       top: 0; left: 0; right: 0; bottom: 0;
       background-color: #fff; 
       border: 1px solid #ccc;
+      border-radius: 20px; 
       transition: 0.4s;
-      border-radius: 22px;
     }
+    /* The lock/unlock icon, smaller font size */
     .slider:before {
       position: absolute;
-      left: 4px;
-      top: 3px;
-      font-size: 14px;
+      left: 3px;
+      top: 2px;
+      font-size: 12px;  /* Smaller icon font size */
       font-family: "Segoe UI Symbol", "Apple Symbols", "Noto Sans Symbols", sans-serif;
       color: #000; 
       content: '🔓';  /* Unlocked by default */
       transition: 0.4s;
     }
+
     input:checked + .slider {
       background-color: #c8e6c9; /* Light green when locked */
     }
     input:checked + .slider:before {
       content: '🔒';
-      transform: translateX(16px);
+      /* Adjust how far the icon moves in smaller switch */
+      transform: translateX(14px);
     }
 
     /* SD & Notes stacked */
@@ -288,14 +295,13 @@
         placeholder='"Do the puzzle" while placing the piece...'></textarea>
 
       <label for="notesArea">Note</label>
-      <!-- Make the Note field only 2 rows high -->
       <textarea id="notesArea" rows="2" 
         placeholder="Notes: Work Harder, Work Harder..."></textarea>
     </div>
 
     <!-- 2-column layout for trial result / prompt level (always 2 columns) -->
     <div class="trial-results">
-      <!-- Left column: Incorrect at the top, followed by Verbal, Prompted, Modeling -->
+      <!-- Left column: Incorrect at top -->
       <div class="column">
         <label class="incorrect">
           <input type="radio" name="trialResult" value="incorrect" />
@@ -314,8 +320,7 @@
           Modeling
         </label>
       </div>
-
-      <!-- Right column: Independent at the top, followed by Gestural, Partial Physical, Full Physical -->
+      <!-- Right column: Independent at top -->
       <div class="column">
         <label class="independent">
           <input type="radio" name="trialResult" value="independent" />
@@ -400,3 +405,4 @@
   </script>
 </body>
 </html>
+
