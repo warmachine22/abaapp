@@ -6,395 +6,160 @@
   <title>Autism Data Collection Demo</title>
   <style>
     /* Global Reset */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    /* Main container (600px max-width for top portion) */
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 1rem;
-    }
-    /* Child header at the top */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    /* Main container (max-width for top portion) */
+    .container { max-width: 600px; margin: 0 auto; padding: 1rem; }
+    
+    /* Child Name Header (lock toggle removed) */
     .child-header {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 1rem;
     }
-    .child-header label {
-      font-weight: bold;
-    }
-    /* Dropdowns layout */
-    .dropdowns {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-    .dropdown-row {
-      display: flex;
-      flex-direction: column;
-    }
-    .dropdown-label-and-toggle {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.3rem;
-    }
-    .dropdown-label-and-toggle .switch {
-      order: 1;
-    }
-    .dropdown-label-and-toggle label:not(.switch) {
-      order: 2;
-      font-weight: bold;
-    }
-    .dropdown-row select {
-      width: 100%;
-      padding: 0.3rem;
-    }
-    /* Toggle Switch */
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 60px;
-      height: 24px;
-    }
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #fff;
-      border: 1px solid #ccc;
-      border-radius: 24px;
-      transition: 0.4s;
-    }
-    .slider:before {
-      position: absolute;
-      left: 4px;
-      top: 3px;
-      font-size: 10px;
-      font-family: Arial, sans-serif;
-      color: #000;
-      content: 'UNLOCK';
-      transition: 0.4s;
-    }
-    input:checked + .slider {
-      background-color: #c8e6c9;
-    }
-    input:checked + .slider:before {
-      content: 'LOCK';
-      transform: translateX(14px);
-    }
-    /* Instructions and SD/Notes */
-    .instructions {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 1rem;
-    }
+    .child-header label { font-weight: bold; }
+    
+    /* Dropdowns */
+    .dropdowns { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem; }
+    .dropdown-row { display: flex; flex-direction: column; }
+    .dropdown-row label { font-weight: bold; margin-bottom: 0.3rem; }
+    .dropdown-row select { width: 100%; padding: 0.3rem; }
+    
+    /* Instructions / SD & Notes */
+    .instructions { display: flex; flex-direction: column; margin-bottom: 1rem; }
     #selectedDescription {
-      font-size: 1.5em;
-      text-align: center;
-      background-color: red;
-      color: white;
-      padding: 10px;
-      border-radius: 5px;
-      margin-bottom: 1rem;
+      font-size: 1.5em; text-align: center; background-color: red; color: white;
+      padding: 10px; border-radius: 5px; margin-bottom: 1rem;
     }
-    .desc-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
+    .desc-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
     .desc-buttons button {
-      background: #0288d1;
-      color: #fff;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      white-space: nowrap;
+      background: #0288d1; color: #fff; padding: 0.5rem 1rem; border: none;
+      border-radius: 4px; cursor: pointer; white-space: nowrap;
     }
-    .desc-buttons button:hover {
-      background: #0277bd;
-    }
-    .instructions label {
-      font-weight: bold;
-      margin-bottom: 0.25rem;
-    }
+    .desc-buttons button:hover { background: #0277bd; }
+    .instructions label { font-weight: bold; margin-bottom: 0.25rem; }
     .instructions textarea {
-      width: 100%;
-      padding: 0.5rem;
-      font-size: 0.9rem;
-      margin-bottom: 1rem;
-      resize: vertical;
+      width: 100%; padding: 0.5rem; font-size: 0.9rem; margin-bottom: 1rem; resize: vertical;
     }
+    
     /* Trial Results */
     .trial-results {
-      display: flex;
-      flex-direction: row;
-      gap: 1rem;
-      margin-bottom: 1rem;
-      overflow-x: auto;
+      display: flex; flex-direction: row; gap: 1rem; margin-bottom: 1rem; overflow-x: auto;
     }
     .trial-results .column {
-      width: 50%;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
+      width: 50%; display: flex; flex-direction: column; gap: 0.5rem;
     }
     label.incorrect { background-color: #ffcdd2; }
     label.independent { background-color: #c8f7c5; }
-    label.verbal,
-    label.prompted,
-    label.modeling,
-    label.gestural,
-    label.partialPhysical,
-    label.fullPhysical { background-color: #fff9c4; }
+    label.verbal, label.prompted, label.modeling, label.gestural, label.partialPhysical, label.fullPhysical {
+      background-color: #fff9c4;
+    }
     .trial-results label {
-      display: flex;
-      align-items: center;
-      padding: 0.5rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      cursor: pointer;
+      display: flex; align-items: center; padding: 0.5rem; border: 1px solid #ddd;
+      border-radius: 4px; cursor: pointer;
     }
-    .trial-results input[type="radio"] {
-      margin-right: 0.5rem;
-      transform: scale(1.2);
-    }
-    .trial-results label:hover {
-      opacity: 0.9;
-    }
+    .trial-results input[type="radio"] { margin-right: 0.5rem; transform: scale(1.2); }
+    .trial-results label:hover { opacity: 0.9; }
+    
     /* Prior Results */
-    .prior-results {
-      margin-bottom: 1rem;
-    }
-    .prior-results h2 {
-      font-size: 1rem;
-      margin-bottom: 0.5rem;
-    }
-    .prior-list {
-      list-style: none;
-      padding: 0;
-    }
-    .prior-list li {
-      margin-bottom: 0.5rem;
-      padding: 0.4rem;
-      border-radius: 4px;
-    }
-    .verbal { background-color: #fff9c4; }
-    .prompted { background-color: #fff9c4; }
-    .modeling { background-color: #fff9c4; }
-    .gestural { background-color: #fff9c4; }
-    .partial-physical { background-color: #fff9c4; }
-    .full-physical { background-color: #fff9c4; }
+    .prior-results { margin-bottom: 1rem; }
+    .prior-results h2 { font-size: 1rem; margin-bottom: 0.5rem; }
+    .prior-list { list-style: none; padding: 0; }
+    .prior-list li { margin-bottom: 0.5rem; padding: 0.4rem; border-radius: 4px; }
+    .verbal, .prompted, .modeling, .gestural, .partial-physical, .full-physical { background-color: #fff9c4; }
     .independent { background-color: #c8f7c5; }
     .incorrect { background-color: #ffcdd2; }
-    /* Modal Styles (old modal retained) */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.5);
-    }
-    .modal-content {
-      background-color: #fefefe;
-      margin: 5% auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 90%;
-      max-width: 600px;
-      border-radius: 4px;
-    }
-    .close {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .close:hover,
-    .close:focus {
-      color: black;
-      text-decoration: none;
-    }
+    
     /* Manage Data Section (full-width) */
     #dataManagementSection {
-      position: relative;
-      left: 50%;
-      right: 50%;
-      margin-left: -50vw;
-      margin-right: -50vw;
-      width: 100vw;
-      background: #fff;
-      padding: 1rem 0;
+      position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw;
+      width: 100vw; background: #fff; padding: 1rem 0;
     }
-    #dataManagementSection hr {
-      margin-bottom: 1rem;
-    }
-    #dataManagementSection h2 {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
+    #dataManagementSection hr { margin-bottom: 1rem; }
+    #dataManagementSection h2 { text-align: center; margin-bottom: 1rem; }
     .data-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-bottom: 1rem;
+      display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem;
     }
-    #toggleDataTableBtn {
-      padding: 0.5rem 1rem;
-      background: #0288d1;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+    #toggleDataTableBtn, #addNewRecordBtn, #importProgramBtn {
+      padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;
     }
-    #toggleDataTableBtn:hover {
-      background: #0277bd;
-    }
-    #addNewRecordBtn {
-      padding: 0.5rem 1rem;
-      background: #00796b;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    #addNewRecordBtn:hover {
-      background: #00695c;
-    }
-    #dataTableContainer {
-      overflow-x: auto;
-      padding: 0 1rem;
-    }
+    #toggleDataTableBtn { background: #0288d1; color: white; }
+    #toggleDataTableBtn:hover { background: #0277bd; }
+    #addNewRecordBtn { background: #00796b; color: white; }
+    #addNewRecordBtn:hover { background: #00695c; }
+    #importProgramBtn { background: #8e24aa; color: white; }
+    #importProgramBtn:hover { background: #7b1fa2; }
+    #dataTableContainer { overflow-x: auto; padding: 0 1rem; }
     #dataTable {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 2rem;
+      width: 100%; border-collapse: collapse; margin-bottom: 2rem;
     }
     #dataTable th, #dataTable td {
-      border: 1px solid #ccc;
-      padding: 0.5rem;
-      text-align: left;
+      border: 1px solid #ccc; padding: 0.5rem; text-align: left;
     }
-    #dataTable th {
-      background-color: #f2f2f2;
-      cursor: pointer;
-    }
-    /* Filter row styling */
+    #dataTable th { background-color: #f2f2f2; cursor: pointer; }
+    /* Filter row */
     #dataTable thead tr.filterRow input {
-      width: 90%;
-      padding: 0.2rem;
-      box-sizing: border-box;
+      width: 90%; padding: 0.2rem; box-sizing: border-box;
     }
-    /* Active column (first column) */
-    .activeCheckbox {
-      width: 16px;
-      height: 16px;
-    }
-    /* Table column order: Child, Active, Content Area, Program, Target, SD, Note, Action */
-    /* Style for Edit button in table */
+    /* Table Columns */
+    .activeCheckbox { width: 16px; height: 16px; }
     .tableEditBtn {
-      padding: 0.3rem 0.5rem;
-      background: #0288d1;
-      color: white;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
+      padding: 0.3rem 0.5rem; background: #0288d1; color: white; border: none;
+      border-radius: 3px; cursor: pointer;
     }
-    .tableEditBtn:hover {
-      background: #0277bd;
-    }
-    /* NEW: Simple Edit Modal for Table Rows / Adding New Record */
-    #simpleEditModal .modal-content {
-      max-width: 400px;
-    }
-    #simpleEditModal label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-    /* Use datalists for hierarchical fields in the simple modal */
+    .tableEditBtn:hover { background: #0277bd; }
+    
+    /* Simple Edit Modal */
+    #simpleEditModal .modal-content { max-width: 400px; }
+    #simpleEditModal label { display: block; margin-top: 10px; font-weight: bold; }
     #simpleEditModal input[type="text"],
     #simpleEditModal textarea {
-      width: 100%;
-      padding: 0.3rem;
-      margin-top: 5px;
-      box-sizing: border-box;
+      width: 100%; padding: 0.3rem; margin-top: 5px; box-sizing: border-box;
     }
     #simpleEditModal button {
-      margin-top: 10px;
-      padding: 0.5rem 1rem;
-      background: #0288d1;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+      margin-top: 10px; padding: 0.5rem 1rem; background: #0288d1; color: white;
+      border: none; border-radius: 4px; cursor: pointer;
     }
-    #simpleEditModal button:hover {
-      background: #0277bd;
+    #simpleEditModal button:hover { background: #0277bd; }
+    
+    /* Modal container */
+    .modal {
+      display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+      width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);
     }
+    .modal-content {
+      background-color: #fefefe; margin: 5% auto; padding: 20px;
+      border: 1px solid #888; width: 90%; max-width: 600px; border-radius: 4px;
+    }
+    .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+    .close:hover, .close:focus { color: black; text-decoration: none; }
   </style>
 </head>
 <body>
+  <!-- Main App -->
   <div class="container">
-    <!-- Child Header -->
+    <!-- Child Name Header -->
     <div class="child-header">
       <label for="childNameSelect">Child Name:</label>
       <select id="childNameSelect"></select>
-      <label class="switch">
-        <input type="checkbox" id="lockChildName" checked />
-        <span class="slider"></span>
-      </label>
     </div>
-
-    <!-- Top section (dropdowns for content area, program, target) -->
+    
+    <!-- Top Section: Dropdowns for Content Area, Program, Target -->
     <div id="topSection">
       <div class="dropdowns">
-        <!-- Content Area -->
         <div class="dropdown-row">
-          <div class="dropdown-label-and-toggle">
-            <label for="contentAreaSelect" style="font-weight: bold;">Content Area</label>
-          </div>
+          <label for="contentAreaSelect">Content Area</label>
           <select id="contentAreaSelect"></select>
         </div>
-        <!-- Program -->
         <div class="dropdown-row">
-          <div class="dropdown-label-and-toggle">
-            <label for="programSelect" style="font-weight: bold;">Program</label>
-          </div>
+          <label for="programSelect">Program</label>
           <select id="programSelect"></select>
         </div>
-        <!-- Target -->
         <div class="dropdown-row">
-          <div class="dropdown-label-and-toggle">
-            <label for="targetSelect" style="font-weight: bold;">Target</label>
-          </div>
+          <label for="targetSelect">Target</label>
           <select id="targetSelect"></select>
         </div>
       </div>
     </div>
-    <!-- End topSection -->
-
+    
     <!-- Instructions and SD/Notes -->
     <div class="instructions">
       <p id="selectedDescription" class="chosen-description"></p>
@@ -407,116 +172,64 @@
       <label for="notesArea">Note</label>
       <textarea id="notesArea" rows="2" placeholder="Notes: Work Harder, Work Harder..."></textarea>
     </div>
-
+    
     <!-- Trial Results -->
     <div class="trial-results">
-      <!-- Left Column -->
       <div class="column">
         <label class="incorrect">
-          <input type="radio" name="trialResult" value="incorrect" />
-          Incorrect
+          <input type="radio" name="trialResult" value="incorrect" /> Incorrect
         </label>
         <label class="verbal">
-          <input type="radio" name="trialResult" value="verbal" />
-          Verbal
+          <input type="radio" name="trialResult" value="verbal" /> Verbal
         </label>
         <label class="prompted">
-          <input type="radio" name="trialResult" value="prompted" />
-          Prompted
+          <input type="radio" name="trialResult" value="prompted" /> Prompted
         </label>
         <label class="modeling">
-          <input type="radio" name="trialResult" value="modeling" />
-          Modeling
+          <input type="radio" name="trialResult" value="modeling" /> Modeling
         </label>
       </div>
-      <!-- Right Column -->
       <div class="column">
         <label class="independent">
-          <input type="radio" name="trialResult" value="independent" />
-          Independent
+          <input type="radio" name="trialResult" value="independent" /> Independent
         </label>
         <label class="gestural">
-          <input type="radio" name="trialResult" value="gestural" />
-          Gestural
+          <input type="radio" name="trialResult" value="gestural" /> Gestural
         </label>
         <label class="partialPhysical">
-          <input type="radio" name="trialResult" value="partialPhysical" />
-          Partial Physical
+          <input type="radio" name="trialResult" value="partialPhysical" /> Partial Physical
         </label>
         <label class="fullPhysical">
-          <input type="radio" name="trialResult" value="fullPhysical" />
-          Full Physical
+          <input type="radio" name="trialResult" value="fullPhysical" /> Full Physical
         </label>
       </div>
     </div>
-
+    
     <!-- Prior Results -->
     <div class="prior-results">
       <h2>Prior Results (Current Target)</h2>
-      <ul class="prior-list" id="priorList">
-        <!-- Up to five recent results for the current target will appear here -->
-      </ul>
+      <ul class="prior-list" id="priorList"></ul>
     </div>
   </div>
-
-  <!-- Manage Data Section (full-width) -->
+  
+  <!-- Manage Data Section -->
   <div id="dataManagementSection">
     <hr/>
     <h2>Manage Data</h2>
     <div class="data-buttons">
       <button id="toggleDataTableBtn">Show Full Program</button>
       <button id="addNewRecordBtn">Add New Record</button>
+      <button id="importProgramBtn">Import Program</button>
     </div>
     <div id="dataTableContainer" style="display: none;">
-      <table id="dataTable">
-        <!-- Table is built dynamically -->
-      </table>
+      <table id="dataTable"></table>
     </div>
   </div>
-
-  <!-- OLD Modal for Add/Edit (retained) -->
-  <div id="editModal" class="modal">
-    <div class="modal-content">
-      <span id="closeModal" class="close">&times;</span>
-      <h2 id="modalTitle">Add New Target Record</h2>
-      <form id="editForm">
-        <input type="hidden" id="editMode" value="add" />
-        <input type="hidden" id="editType" value="target" />
-        <input type="hidden" id="originalChild" value="" />
-        <input type="hidden" id="originalArea" value="" />
-        <input type="hidden" id="originalProgram" value="" />
-        <input type="hidden" id="originalTarget" value="" />
-        
-        <label for="editChild">Child Name</label>
-        <input type="text" id="editChild" required />
-        
-        <label for="editContentArea">Content Area</label>
-        <input type="text" id="editContentArea" required />
-        
-        <label for="editProgram">Program</label>
-        <input type="text" id="editProgram" required />
-        
-        <label for="editTarget">Target</label>
-        <input type="text" id="editTarget" required />
-        
-        <label for="editSD">SD (Instruction)</label>
-        <textarea id="editSD" required></textarea>
-        
-        <label for="editNote">Note</label>
-        <textarea id="editNote" required></textarea>
-        
-        <button type="submit" id="saveEditBtn">Save</button>
-        <button type="button" id="cancelEditBtn">Cancel</button>
-      </form>
-      <hr/>
-      <h3>Existing Data</h3>
-      <div id="dataTree">
-        <!-- Hierarchical view of appData -->
-      </div>
-    </div>
-  </div>
-
-  <!-- NEW: Simple Edit Modal for Table Rows / Adding New Record -->
+  
+  <!-- Hidden CSV File Input -->
+  <input type="file" id="csvFileInput" accept=".csv" style="display: none;" />
+  
+  <!-- Simple Edit Modal (for both adding and editing records) -->
   <div id="simpleEditModal" class="modal">
     <div class="modal-content">
       <span id="closeSimpleEditModal" class="close">&times;</span>
@@ -524,26 +237,26 @@
       <form id="simpleEditForm">
         <!-- Hidden field to track mode ("edit" or "add") -->
         <input type="hidden" id="simpleEditMode" value="edit">
-        <input type="hidden" id="simpleOriginalChild" value="" />
-        <input type="hidden" id="simpleOriginalArea" value="" />
-        <input type="hidden" id="simpleOriginalProgram" value="" />
-        <input type="hidden" id="simpleOriginalTarget" value="" />
+        <input type="hidden" id="simpleOriginalChild" value="">
+        <input type="hidden" id="simpleOriginalArea" value="">
+        <input type="hidden" id="simpleOriginalProgram" value="">
+        <input type="hidden" id="simpleOriginalTarget" value="">
         
-        <!-- Use datalists for suggestions -->
+        <!-- Fields with datalists for suggestions -->
         <label for="simpleEditChild">Child Name</label>
-        <input type="text" id="simpleEditChild" list="childList" required />
+        <input type="text" id="simpleEditChild" list="childList" required>
         <datalist id="childList"></datalist>
         
         <label for="simpleEditContentArea">Content Area</label>
-        <input type="text" id="simpleEditContentArea" list="contentAreaList" required />
+        <input type="text" id="simpleEditContentArea" list="contentAreaList" required>
         <datalist id="contentAreaList"></datalist>
         
         <label for="simpleEditProgram">Program</label>
-        <input type="text" id="simpleEditProgram" list="programList" required />
+        <input type="text" id="simpleEditProgram" list="programList" required>
         <datalist id="programList"></datalist>
         
         <label for="simpleEditTarget">Target</label>
-        <input type="text" id="simpleEditTarget" list="targetList" required />
+        <input type="text" id="simpleEditTarget" list="targetList" required>
         <datalist id="targetList"></datalist>
         
         <label for="simpleEditSD">SD (Instruction)</label>
@@ -552,10 +265,9 @@
         <label for="simpleEditNote">Note</label>
         <textarea id="simpleEditNote" required></textarea>
         
-        <!-- New checkbox for Active state (unchecked by default for adding new records) -->
+        <!-- Active checkbox (unchecked by default for new records) -->
         <label>
-          <input type="checkbox" id="simpleEditActive" />
-          Active
+          <input type="checkbox" id="simpleEditActive"> Active
         </label>
         
         <button type="submit" id="simpleSaveEditBtn">Save</button>
@@ -563,63 +275,82 @@
       </form>
     </div>
   </div>
-
+  
+  <!-- Consolidated Script Block -->
   <script>
-    /********************************************************
-     * Global Hierarchical Data Structure keyed by Child Name.
-     ********************************************************/
-    let appData = {
-      "Joe Smith": {
-        "Visual - Performance": {
-          "Single Puzzle": {
-            "Puzzle - 1 piece": {
-              sd: '"Do the puzzle" while placing the piece...',
-              note: 'Use both hands.',
-              active: true
-            },
-            "Puzzle - 2 pieces": {
-              sd: '"Do the puzzle" with two pieces...',
-              note: 'Encourage problem solving.',
-              active: true
-            }
-          },
-          "Matching": {
-            "Color Matching": {
-              sd: '"Match the colors"',
-              note: 'Use visual cues.',
-              active: true
-            }
-          }
-        }
-      },
-      "Jane Doe": {
-        "Language - Receptive": {
-          "Imitation": {
-            "Tracing Letters": {
-              sd: '"Trace the letters"',
-              note: 'Focus on letter shapes.',
-              active: true
-            }
-          },
-          "Labeling (Tacts)": {
-            "Conversation Skills": {
-              sd: '"Talk about daily activities"',
-              note: 'Prompt with questions.',
-              active: true
-            }
-          }
-        }
-      }
-    };
-
-    /********************************************************
-     * Global Trial History Storage
-     ********************************************************/
+    /******** Global Variables ********/
     let trialHistory = [];
-
-    /********************************************************
-     * FUNCTIONS FOR MAIN INTERFACE (Using the hierarchical appData)
-     ********************************************************/
+    let sortOrder = 1;
+    
+    /******** Local Storage Functions ********/
+    function loadAppData() {
+      const stored = localStorage.getItem("appData");
+      if (stored) {
+        try { return JSON.parse(stored); }
+        catch (e) { console.error("Error parsing appData", e); }
+      }
+      return null;
+    }
+    function saveAppData() {
+      localStorage.setItem("appData", JSON.stringify(appData));
+    }
+    
+    /******** Global Data Structure ********/
+    let appData = loadAppData();
+    if (!appData || Object.keys(appData).length === 0) {
+      // Default sample data (includes "Test Child")
+      appData = {
+        "Test Child": {
+          "Math Skills": {
+            "Counting": {
+              "Count to 10": { sd: "Count from 1 to 10", note: "Encourage counting", active: true }
+            },
+            "Shapes": {
+              "Identify Circle": { sd: "Identify the circle", note: "Provide visual cues", active: true }
+            }
+          },
+          "Language Skills": {
+            "Naming": {
+              "Name Colors": { sd: "Name the color", note: "Use flashcards", active: true }
+            }
+          }
+        },
+        "Joe Smith": {
+          "Visual - Performance": {
+            "Single Puzzle": {
+              "Puzzle - 1 piece": { sd: '"Do the puzzle" while placing the piece...', note: "Use both hands", active: true },
+              "Puzzle - 2 pieces": { sd: '"Do the puzzle" with two pieces...', note: "Encourage problem solving", active: true }
+            },
+            "Matching": {
+              "Color Matching": { sd: '"Match the colors"', note: "Use visual cues", active: true }
+            }
+          }
+        },
+        "Jane Doe": {
+          "Language - Receptive": {
+            "Imitation": {
+              "Tracing Letters": { sd: '"Trace the letters"', note: "Focus on letter shapes", active: true }
+            },
+            "Labeling (Tacts)": {
+              "Conversation Skills": { sd: '"Talk about daily activities"', note: "Prompt with questions", active: true }
+            }
+          }
+        },
+        "Bob Johnson": {
+          "Social Skills": {
+            "Social Greetings": {
+              "Greeting by name": { sd: '"Say hello to your friend"', note: "Maintain eye contact", active: true }
+            },
+            "Adaptive Skills": {
+              "Sharing Toys": { sd: '"Share your toys with a peer"', note: "Praise sharing behavior", active: true }
+            }
+          }
+        }
+      };
+      saveAppData();
+    }
+    
+    /******** Functions for Main Interface ********/
     const childNameSelect = document.getElementById("childNameSelect");
     const contentAreaSelect = document.getElementById("contentAreaSelect");
     const programSelect = document.getElementById("programSelect");
@@ -628,22 +359,22 @@
     const notesArea = document.getElementById("notesArea");
     const descriptionP = document.getElementById("selectedDescription");
     const priorList = document.getElementById("priorList");
-
+    
     function populateChildNames() {
       childNameSelect.innerHTML = "";
       Object.keys(appData).forEach(child => {
-        let opt = document.createElement("option");
+        const opt = document.createElement("option");
         opt.value = child;
         opt.textContent = child;
         childNameSelect.appendChild(opt);
       });
     }
     function updateContentAreas() {
-      let selectedChild = childNameSelect.value;
+      const selectedChild = childNameSelect.value;
       contentAreaSelect.innerHTML = "";
-      if(appData[selectedChild]){
+      if (appData[selectedChild]) {
         Object.keys(appData[selectedChild]).forEach(area => {
-          let opt = document.createElement("option");
+          const opt = document.createElement("option");
           opt.value = area;
           opt.textContent = area;
           contentAreaSelect.appendChild(opt);
@@ -651,12 +382,12 @@
       }
     }
     function updateProgramSelect() {
-      let selectedChild = childNameSelect.value;
-      let selectedArea = contentAreaSelect.value;
+      const selectedChild = childNameSelect.value;
+      const selectedArea = contentAreaSelect.value;
       programSelect.innerHTML = "";
-      if(appData[selectedChild] && appData[selectedChild][selectedArea]){
+      if (appData[selectedChild] && appData[selectedChild][selectedArea]) {
         Object.keys(appData[selectedChild][selectedArea]).forEach(prog => {
-          let opt = document.createElement("option");
+          const opt = document.createElement("option");
           opt.value = prog;
           opt.textContent = prog;
           programSelect.appendChild(opt);
@@ -664,15 +395,17 @@
       }
     }
     function updateTargetSelect() {
-      let selectedChild = childNameSelect.value;
-      let selectedArea = contentAreaSelect.value;
-      let selectedProgram = programSelect.value;
+      const selectedChild = childNameSelect.value;
+      const selectedArea = contentAreaSelect.value;
+      const selectedProgram = programSelect.value;
       targetSelect.innerHTML = "";
-      if(appData[selectedChild] && appData[selectedChild][selectedArea] && appData[selectedChild][selectedArea][selectedProgram]){
+      if (appData[selectedChild] &&
+          appData[selectedChild][selectedArea] &&
+          appData[selectedChild][selectedArea][selectedProgram]) {
         Object.keys(appData[selectedChild][selectedArea][selectedProgram])
           .filter(target => appData[selectedChild][selectedArea][selectedProgram][target].active)
           .forEach(target => {
-            let opt = document.createElement("option");
+            const opt = document.createElement("option");
             opt.value = target;
             opt.textContent = target;
             targetSelect.appendChild(opt);
@@ -680,12 +413,15 @@
       }
     }
     function updateInstructions() {
-      let selectedChild = childNameSelect.value;
-      let selectedArea = contentAreaSelect.value;
-      let selectedProgram = programSelect.value;
-      let selectedTarget = targetSelect.value;
-      if(appData[selectedChild] && appData[selectedChild][selectedArea] && appData[selectedChild][selectedArea][selectedProgram] && appData[selectedChild][selectedArea][selectedProgram][selectedTarget]){
-        let rec = appData[selectedChild][selectedArea][selectedProgram][selectedTarget];
+      const selectedChild = childNameSelect.value;
+      const selectedArea = contentAreaSelect.value;
+      const selectedProgram = programSelect.value;
+      const selectedTarget = targetSelect.value;
+      if (appData[selectedChild] &&
+          appData[selectedChild][selectedArea] &&
+          appData[selectedChild][selectedArea][selectedProgram] &&
+          appData[selectedChild][selectedArea][selectedProgram][selectedTarget]) {
+        const rec = appData[selectedChild][selectedArea][selectedProgram][selectedTarget];
         sdInput.value = rec.sd;
         notesArea.value = rec.note;
       } else {
@@ -694,26 +430,31 @@
       }
     }
     function updateDescription() {
-      let selectedChild = childNameSelect.value;
+      const selectedChild = childNameSelect.value;
       descriptionP.textContent = selectedChild + ' -- ' + contentAreaSelect.value + ' -- ' + programSelect.value + ' -- ' + targetSelect.value;
     }
     function updatePriorResults() {
-      let selectedChild = childNameSelect.value;
-      let currentArea = contentAreaSelect.value;
-      let currentProgram = programSelect.value;
-      let currentTarget = targetSelect.value;
+      const selectedChild = childNameSelect.value;
+      const currentArea = contentAreaSelect.value;
+      const currentProgram = programSelect.value;
+      const currentTarget = targetSelect.value;
       const filtered = trialHistory.filter(item => 
-        item.child === selectedChild && item.contentArea === currentArea && item.program === currentProgram && item.target === currentTarget
+        item.child === selectedChild &&
+        item.contentArea === currentArea &&
+        item.program === currentProgram &&
+        item.target === currentTarget
       );
       const lastFive = filtered.slice(-5);
       priorList.innerHTML = "";
-      for(let i = lastFive.length - 1; i >= 0; i--){
-        let li = document.createElement("li");
+      for (let i = lastFive.length - 1; i >= 0; i--) {
+        const li = document.createElement("li");
         li.textContent = lastFive[i].result.charAt(0).toUpperCase() + lastFive[i].result.slice(1);
         li.className = lastFive[i].result;
         priorList.appendChild(li);
       }
     }
+    
+    // Set up event listeners for dropdowns
     childNameSelect.addEventListener('change', () => {
       updateContentAreas();
       updateProgramSelect();
@@ -740,6 +481,8 @@
       updateDescription();
       updatePriorResults();
     });
+    
+    // Initial population
     populateChildNames();
     updateContentAreas();
     updateProgramSelect();
@@ -747,41 +490,37 @@
     updateInstructions();
     updateDescription();
     updatePriorResults();
-
-    /********************************************************
-     * Randomization Functionality
-     ********************************************************/
+    
+    /******** Randomization Functionality ********/
     function randomizeTrialData() {
-      let selectedChild = childNameSelect.value;
-      if(!appData[selectedChild]) return;
-      let childData = appData[selectedChild];
-      let contentAreas = Object.keys(childData);
-      if(contentAreas.length === 0) return;
-      let randomArea = contentAreas[Math.floor(Math.random() * contentAreas.length)];
+      const selectedChild = childNameSelect.value;
+      if (!appData[selectedChild]) return;
+      const childData = appData[selectedChild];
+      const contentAreas = Object.keys(childData);
+      if (contentAreas.length === 0) return;
+      const randomArea = contentAreas[Math.floor(Math.random() * contentAreas.length)];
       contentAreaSelect.value = randomArea;
       updateProgramSelect();
-      let programs = Object.keys(childData[randomArea]);
-      if(programs.length === 0) return;
-      let randomProgram = programs[Math.floor(Math.random() * programs.length)];
+      const programs = Object.keys(childData[randomArea]);
+      if (programs.length === 0) return;
+      const randomProgram = programs[Math.floor(Math.random() * programs.length)];
       programSelect.value = randomProgram;
       updateTargetSelect();
-      let targets = Object.keys(childData[randomArea][randomProgram]).filter(t => childData[randomArea][randomProgram][t].active);
-      if(targets.length === 0) return;
-      let randomTarget = targets[Math.floor(Math.random() * targets.length)];
+      const targets = Object.keys(childData[randomArea][randomProgram]).filter(t => childData[randomArea][randomProgram][t].active);
+      if (targets.length === 0) return;
+      const randomTarget = targets[Math.floor(Math.random() * targets.length)];
       targetSelect.value = randomTarget;
       updateInstructions();
       updateDescription();
       updatePriorResults();
     }
     document.getElementById('selectRandomBtn').addEventListener('click', randomizeTrialData);
-
-    /********************************************************
-     * Toggle Details Section
-     ********************************************************/
+    
+    /******** Toggle Details Section ********/
     const toggleBtn = document.getElementById('toggleDetailsBtn');
     const topSection = document.getElementById('topSection');
     toggleBtn.addEventListener('click', () => {
-      if(topSection.style.display === 'none' || topSection.style.display === ''){
+      if (topSection.style.display === 'none' || topSection.style.display === '') {
         topSection.style.display = 'block';
         toggleBtn.textContent = 'Hide Details';
       } else {
@@ -789,17 +528,15 @@
         toggleBtn.textContent = 'View Details';
       }
     });
-
-    /********************************************************
-     * Trial Data Recording
-     ********************************************************/
+    
+    /******** Trial Data Recording ********/
     function clearTrialSelection() {
       document.querySelectorAll('input[name="trialResult"]').forEach(radio => {
         radio.checked = false;
       });
     }
     function recordTrial(result) {
-      let record = {
+      const record = {
         child: childNameSelect.value,
         contentArea: contentAreaSelect.value,
         program: programSelect.value,
@@ -812,139 +549,281 @@
       clearTrialSelection();
     }
     document.querySelectorAll('input[name="trialResult"]').forEach(radio => {
-      radio.addEventListener('change', e => {
-        recordTrial(e.target.value);
-      });
+      radio.addEventListener('change', e => { recordTrial(e.target.value); });
     });
-
-    /********************************************************
-     * OLD Modal for Add/Edit (retained)
-     ********************************************************/
-    const editModal = document.getElementById('editModal');
-    const closeModalBtn = document.getElementById('closeModal');
-    const cancelEditBtn = document.getElementById('cancelEditBtn');
-    const editForm = document.getElementById('editForm');
-    const modalTitle = document.getElementById('modalTitle');
-    const editChild = document.getElementById('editChild');
-    const editContentArea = document.getElementById('editContentArea');
-    const editProgram = document.getElementById('editProgram');
-    const editTarget = document.getElementById('editTarget');
-    const editSD = document.getElementById('editSD');
-    const editNote = document.getElementById('editNote');
-    const editModeField = document.getElementById('editMode');
-    const editTypeField = document.getElementById('editType');
-    const originalChildField = document.getElementById('originalChild');
-    const originalAreaField = document.getElementById('originalArea');
-    const originalProgramField = document.getElementById('originalProgram');
-    const originalTargetField = document.getElementById('originalTarget');
-
-    function openEditModal(editType = "target", mode = "add", data = {}) {
-      editModeField.value = mode;
-      editTypeField.value = editType;
-      if(mode === "add"){
-        modalTitle.textContent = "Add New Target Record";
-      } else if(mode === "edit"){
-        modalTitle.textContent = "Edit " + editType.charAt(0).toUpperCase() + editType.slice(1);
+    
+    /******** CSV Import Functionality ********/
+    const importProgramBtn = document.getElementById('importProgramBtn');
+    const csvFileInput = document.getElementById('csvFileInput');
+    importProgramBtn.addEventListener('click', () => { csvFileInput.click(); });
+    csvFileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        parseCSVImport(text);
+      };
+      reader.readAsText(file);
+    });
+    function parseCSVImport(csvText) {
+      const lines = csvText.split(/\r?\n/);
+      if (lines.length < 2) return alert("CSV file appears empty.");
+      const header = lines[0].split(",").map(h => h.trim().toLowerCase());
+      const expected = ["child", "content area", "program", "target", "sd", "note", "active"];
+      if (header.join() !== expected.join()) {
+        return alert("CSV header does not match expected format. Expected: " + expected.join(", "));
       }
-      if(editType === "child"){
-        editChild.value = data.child || "";
-        originalChildField.value = data.child || "";
-      } else if(editType === "contentArea"){
-        editContentArea.value = data.area || "";
-        originalAreaField.value = data.area || "";
-      } else if(editType === "program"){
-        editContentArea.value = data.area || "";
-        editProgram.value = data.program || "";
-        originalAreaField.value = data.area || "";
-        originalProgramField.value = data.program || "";
-      } else if(editType === "target"){
-        editChild.value = data.child || "";
-        editContentArea.value = data.area || "";
-        editProgram.value = data.program || "";
-        editTarget.value = data.target || "";
-        editSD.value = data.sd || "";
-        editNote.value = data.note || "";
-        originalChildField.value = data.child || "";
-        originalAreaField.value = data.area || "";
-        originalProgramField.value = data.program || "";
-        originalTargetField.value = data.target || "";
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        const fields = line.split(",").map(f => f.trim());
+        if (fields.length < 7) continue;
+        const [child, area, program, target, sd, note, activeStr] = fields;
+        const active = (activeStr.toLowerCase() === "true" || activeStr === "1");
+        if (!appData[child]) { appData[child] = {}; }
+        if (!appData[child][area]) { appData[child][area] = {}; }
+        if (!appData[child][area][program]) { appData[child][area][program] = {}; }
+        appData[child][area][program][target] = { sd: sd, note: note, active: active };
       }
-      editModal.style.display = "block";
-    }
-    function closeEditModal() {
-      editModal.style.display = "none";
-    }
-    cancelEditBtn.addEventListener('click', closeEditModal);
-    closeModalBtn.addEventListener('click', closeEditModal);
-    editForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const mode = editModeField.value;
-      const type = editTypeField.value;
-      const newChild = editChild.value.trim();
-      const newArea = editContentArea.value.trim();
-      const newProg = editProgram.value.trim();
-      const newTarget = editTarget.value.trim();
-      const newSD = editSD.value.trim();
-      const newNote = editNote.value.trim();
-      if(type === "target"){
-        if(!appData[newChild]) { appData[newChild] = {}; }
-        if(!appData[newChild][newArea]) { appData[newChild][newArea] = {}; }
-        if(!appData[newChild][newArea][newProg]) { appData[newChild][newArea][newProg] = {}; }
-        if(mode === "add"){
-          if(appData[newChild][newArea][newProg][newTarget] && !confirm("Target already exists. Overwrite?")){
-            return;
-          }
-          appData[newChild][newArea][newProg][newTarget] = { sd: newSD, note: newNote, active: true };
-        } else if(mode === "edit"){
-          const origChild = originalChildField.value;
-          const origArea = originalAreaField.value;
-          const origProg = originalProgramField.value;
-          const origTarget = originalTargetField.value;
-          if(origChild && origArea && origProg && origTarget){
-            delete appData[origChild][origArea][origProg][origTarget];
-            if(Object.keys(appData[origChild][origArea][origProg]).length === 0){
-              delete appData[origChild][origArea][origProg];
-              if(Object.keys(appData[origChild][origArea]).length === 0){
-                delete appData[origChild][origArea];
-                if(Object.keys(appData[origChild]).length === 0){
-                  delete appData[origChild];
-                }
-              }
-            }
-          }
-          if(!appData[newChild]) { appData[newChild] = {}; }
-          if(!appData[newChild][newArea]) { appData[newChild][newArea] = {}; }
-          if(!appData[newChild][newArea][newProg]) { appData[newChild][newArea][newProg] = {}; }
-          appData[newChild][newArea][newProg][newTarget] = { sd: newSD, note: newNote, active: true };
-        }
-      }
+      saveAppData();
       populateChildNames();
       updateContentAreas();
       updateProgramSelect();
       updateTargetSelect();
       updateInstructions();
       updateDescription();
-      updateDataTree();
-      closeEditModal();
-      if(document.getElementById('dataTableContainer').style.display !== "none"){
-        buildDataTable();
+      alert("CSV import successful.");
+    }
+    
+    /******** Save appData to localStorage ********/
+    function saveAppData() { localStorage.setItem("appData", JSON.stringify(appData)); }
+    
+    /******** Simple Edit Modal (for adding/editing records) ********/
+    const simpleEditModal = document.getElementById('simpleEditModal');
+    const closeSimpleEditModal = document.getElementById('closeSimpleEditModal');
+    const simpleEditForm = document.getElementById('simpleEditForm');
+    const simpleModalTitle = document.getElementById('simpleModalTitle');
+    const simpleEditChild = document.getElementById('simpleEditChild');
+    const simpleEditContentArea = document.getElementById('simpleEditContentArea');
+    const simpleEditProgram = document.getElementById('simpleEditProgram');
+    const simpleEditTarget = document.getElementById('simpleEditTarget');
+    const simpleEditSD = document.getElementById('simpleEditSD');
+    const simpleEditNote = document.getElementById('simpleEditNote');
+    const simpleEditActive = document.getElementById('simpleEditActive');
+    const simpleOriginalChild = document.getElementById('simpleOriginalChild');
+    const simpleOriginalArea = document.getElementById('simpleOriginalArea');
+    const simpleOriginalProgram = document.getElementById('simpleOriginalProgram');
+    const simpleOriginalTarget = document.getElementById('simpleOriginalTarget');
+    
+    // Datalist update functions
+    function updateChildDatalist() {
+      const datalist = document.getElementById('childList');
+      datalist.innerHTML = "";
+      Object.keys(appData).forEach(child => {
+        const option = document.createElement('option');
+        option.value = child;
+        datalist.appendChild(option);
+      });
+    }
+    function updateContentAreaDatalist() {
+      const datalist = document.getElementById('contentAreaList');
+      datalist.innerHTML = "";
+      const childVal = simpleEditChild.value;
+      if (appData[childVal]) {
+        Object.keys(appData[childVal]).forEach(area => {
+          const option = document.createElement('option');
+          option.value = area;
+          datalist.appendChild(option);
+        });
       }
+    }
+    function updateProgramDatalist() {
+      const datalist = document.getElementById('programList');
+      datalist.innerHTML = "";
+      const childVal = simpleEditChild.value;
+      const areaVal = simpleEditContentArea.value;
+      if (appData[childVal] && appData[childVal][areaVal]) {
+        Object.keys(appData[childVal][areaVal]).forEach(prog => {
+          const option = document.createElement('option');
+          option.value = prog;
+          datalist.appendChild(option);
+        });
+      }
+    }
+    function updateTargetDatalist() {
+      const datalist = document.getElementById('targetList');
+      datalist.innerHTML = "";
+      const childVal = simpleEditChild.value;
+      const areaVal = simpleEditContentArea.value;
+      const progVal = simpleEditProgram.value;
+      if (appData[childVal] && appData[childVal][areaVal] && appData[childVal][areaVal][progVal]) {
+        Object.keys(appData[childVal][areaVal][progVal]).forEach(targ => {
+          const option = document.createElement('option');
+          option.value = targ;
+          datalist.appendChild(option);
+        });
+      }
+    }
+    simpleEditChild.addEventListener('input', updateContentAreaDatalist);
+    simpleEditContentArea.addEventListener('input', updateProgramDatalist);
+    simpleEditProgram.addEventListener('input', updateTargetDatalist);
+    
+    function openSimpleEditModal(data, mode) {
+      document.getElementById('simpleEditMode').value = mode;
+      if (mode === "edit") {
+        simpleModalTitle.textContent = "Edit Record";
+        simpleEditChild.value = data.child || "";
+        simpleEditContentArea.value = data.area || "";
+        simpleEditProgram.value = data.program || "";
+        simpleEditTarget.value = data.target || "";
+        simpleEditSD.value = data.sd || "";
+        simpleEditNote.value = data.note || "";
+        simpleEditActive.checked = (data.active === false ? false : true);
+        simpleOriginalChild.value = data.child || "";
+        simpleOriginalArea.value = data.area || "";
+        simpleOriginalProgram.value = data.program || "";
+        simpleOriginalTarget.value = data.target || "";
+      } else if (mode === "add") {
+        simpleModalTitle.textContent = "Add New Record";
+        simpleEditChild.value = childNameSelect.value; // default to selected child's name
+        simpleEditContentArea.value = "";
+        simpleEditProgram.value = "";
+        simpleEditTarget.value = "";
+        simpleEditSD.value = "";
+        simpleEditNote.value = "";
+        simpleEditActive.checked = false;
+        simpleOriginalChild.value = "";
+        simpleOriginalArea.value = "";
+        simpleOriginalProgram.value = "";
+        simpleOriginalTarget.value = "";
+      }
+      updateChildDatalist();
+      updateContentAreaDatalist();
+      updateProgramDatalist();
+      updateTargetDatalist();
+      simpleEditModal.style.display = "block";
+    }
+    function closeSimpleEditModalFunc() { simpleEditModal.style.display = "none"; }
+    document.getElementById('closeSimpleEditModal').addEventListener('click', closeSimpleEditModalFunc);
+    document.getElementById('simpleCancelEditBtn').addEventListener('click', closeSimpleEditModalFunc);
+    
+    simpleEditForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const mode = document.getElementById('simpleEditMode').value;
+      const newChild = simpleEditChild.value.trim();
+      const newArea = simpleEditContentArea.value.trim();
+      const newProg = simpleEditProgram.value.trim();
+      const newTarget = simpleEditTarget.value.trim();
+      const newSD = simpleEditSD.value.trim();
+      const newNote = simpleEditNote.value.trim();
+      const newActive = simpleEditActive.checked;
+      
+      if (!newChild || !newArea || !newProg || !newTarget || !newSD || !newNote) {
+        alert("All fields are required.");
+        return;
+      }
+      
+      if (mode === "edit") {
+        const origChild = simpleOriginalChild.value;
+        const origArea = simpleOriginalArea.value;
+        const origProg = simpleOriginalProgram.value;
+        const origTarget = simpleOriginalTarget.value;
+        if (origChild && origArea && origProg && origTarget) {
+          delete appData[origChild][origArea][origProg][origTarget];
+          if (Object.keys(appData[origChild][origArea][origProg]).length === 0) {
+            delete appData[origChild][origArea][origProg];
+            if (Object.keys(appData[origChild][origArea]).length === 0) {
+              delete appData[origChild][origArea];
+              if (Object.keys(appData[origChild]).length === 0) {
+                delete appData[origChild];
+              }
+            }
+          }
+        }
+      }
+      if (!appData[newChild]) { appData[newChild] = {}; }
+      if (!appData[newChild][newArea]) { appData[newChild][newArea] = {}; }
+      if (!appData[newChild][newArea][newProg]) { appData[newChild][newArea][newProg] = {}; }
+      if (mode === "add" && appData[newChild][newArea][newProg][newTarget]) {
+        if (!confirm("Target already exists. Overwrite?")) { return; }
+      }
+      appData[newChild][newArea][newProg][newTarget] = { sd: newSD, note: newNote, active: newActive };
+      closeSimpleEditModalFunc();
+      buildDataTable();
+      if (childNameSelect.value === simpleOriginalChild.value &&
+          contentAreaSelect.value === simpleOriginalArea.value &&
+          programSelect.value === simpleOriginalProgram.value &&
+          targetSelect.value === simpleOriginalTarget.value) {
+        childNameSelect.value = newChild;
+        updateContentAreas();
+        contentAreaSelect.value = newArea;
+        updateProgramSelect();
+        programSelect.value = newProg;
+        updateTargetSelect();
+        targetSelect.value = newTarget;
+        updateInstructions();
+        updateDescription();
+        updatePriorResults();
+      }
+      saveAppData();
     });
-
-    /********************************************************
-     * Data Management: Table View
-     ********************************************************/
-    const toggleDataTableBtn = document.getElementById('toggleDataTableBtn');
-    const dataTableContainer = document.getElementById('dataTableContainer');
-    const dataTable = document.getElementById('dataTable');
-
+    
+    /******** New Button for Adding New Record ********/
+    document.getElementById('addNewRecordBtn').addEventListener('click', function() {
+      openSimpleEditModal({}, "add");
+    });
+    
+    /******** CSV Import Functionality ********/
+    document.getElementById('importProgramBtn').addEventListener('click', () => { csvFileInput.click(); });
+    csvFileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        parseCSVImport(text);
+      };
+      reader.readAsText(file);
+    });
+    function parseCSVImport(csvText) {
+      const lines = csvText.split(/\r?\n/);
+      if (lines.length < 2) return alert("CSV file appears empty.");
+      const header = lines[0].split(",").map(h => h.trim().toLowerCase());
+      const expected = ["child", "content area", "program", "target", "sd", "note", "active"];
+      if (header.join() !== expected.join()) {
+        return alert("CSV header does not match expected format. Expected: " + expected.join(", "));
+      }
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        const fields = line.split(",").map(f => f.trim());
+        if (fields.length < 7) continue;
+        const [child, area, program, target, sd, note, activeStr] = fields;
+        const active = (activeStr.toLowerCase() === "true" || activeStr === "1");
+        if (!appData[child]) { appData[child] = {}; }
+        if (!appData[child][area]) { appData[child][area] = {}; }
+        if (!appData[child][area][program]) { appData[child][area][program] = {}; }
+        appData[child][area][program][target] = { sd: sd, note: note, active: active };
+      }
+      saveAppData();
+      populateChildNames();
+      updateContentAreas();
+      updateProgramSelect();
+      updateTargetSelect();
+      updateInstructions();
+      updateDescription();
+      alert("CSV import successful.");
+    }
+    
+    /******** Data Management: Table View ********/
     function buildDataTable() {
       let rows = [];
       Object.keys(appData).forEach(child => {
         Object.keys(appData[child]).forEach(area => {
           Object.keys(appData[child][area]).forEach(prog => {
             Object.keys(appData[child][area][prog]).forEach(targ => {
-              let rec = appData[child][area][prog][targ];
+              const rec = appData[child][area][prog][targ];
               rows.push({
                 child: child,
                 contentArea: area,
@@ -959,10 +838,10 @@
         });
       });
       
-      let columns = ["Child", "Active", "Content Area", "Program", "Target", "SD", "Note", "Action"];
+      const columns = ["Child", "Active", "Content Area", "Program", "Target", "SD", "Note", "Action"];
       let thead = "<thead><tr>";
       columns.forEach((col, index) => {
-        if(col !== "Action"){
+        if (col !== "Action") {
           thead += `<th data-col="${index}" class="sortable">${col}</th>`;
         } else {
           thead += `<th>${col}</th>`;
@@ -971,7 +850,7 @@
       thead += "</tr>";
       thead += "<tr class='filterRow'>";
       columns.forEach((col, index) => {
-        if(col === "Active" || col === "Action"){
+        if (col === "Active" || col === "Action") {
           thead += "<th></th>";
         } else {
           thead += `<th><input type="text" data-col="${index}" placeholder="Filter ${col}" /></th>`;
@@ -999,7 +878,7 @@
       const sortableHeaders = dataTable.querySelectorAll("th.sortable");
       sortableHeaders.forEach(header => {
         header.addEventListener("click", () => {
-          let colIndex = header.getAttribute("data-col");
+          const colIndex = header.getAttribute("data-col");
           sortTable(colIndex);
         });
       });
@@ -1011,41 +890,41 @@
       
       const editButtons = dataTable.querySelectorAll(".tableEditBtn");
       editButtons.forEach(btn => {
-        btn.addEventListener("click", function(){
-          let child = btn.getAttribute("data-child");
-          let area = btn.getAttribute("data-contentArea");
-          let prog = btn.getAttribute("data-program");
-          let targ = btn.getAttribute("data-target");
-          let rec = appData[child][area][prog][targ];
-          openSimpleEditModal({child: child, area: area, program: prog, target: targ, sd: rec.sd, note: rec.note, active: rec.active}, "edit");
+        btn.addEventListener("click", function() {
+          const child = btn.getAttribute("data-child");
+          const area = btn.getAttribute("data-contentArea");
+          const prog = btn.getAttribute("data-program");
+          const targ = btn.getAttribute("data-target");
+          const rec = appData[child][area][prog][targ];
+          openSimpleEditModal({ child, area, program: prog, target: targ, sd: rec.sd, note: rec.note, active: rec.active }, "edit");
         });
       });
       
       const activeCheckboxes = dataTable.querySelectorAll(".activeCheckbox");
       activeCheckboxes.forEach(chk => {
-        chk.addEventListener("change", function(){
-          let child = chk.getAttribute("data-child");
-          let area = chk.getAttribute("data-contentArea");
-          let prog = chk.getAttribute("data-program");
-          let targ = chk.getAttribute("data-target");
+        chk.addEventListener("change", function() {
+          const child = chk.getAttribute("data-child");
+          const area = chk.getAttribute("data-contentArea");
+          const prog = chk.getAttribute("data-program");
+          const targ = chk.getAttribute("data-target");
           appData[child][area][prog][targ].active = chk.checked;
           updateTargetSelect();
           updateInstructions();
           updateDescription();
           updatePriorResults();
+          saveAppData();
         });
       });
     }
     
-    let sortOrder = 1;
     function sortTable(colIndex) {
       const tbody = dataTable.querySelector("tbody");
-      let rows = Array.from(tbody.querySelectorAll("tr"));
+      const rows = Array.from(tbody.querySelectorAll("tr"));
       rows.sort((a, b) => {
         const aText = a.children[colIndex].textContent.toLowerCase();
         const bText = b.children[colIndex].textContent.toLowerCase();
-        if(aText < bText) return -1 * sortOrder;
-        if(aText > bText) return 1 * sortOrder;
+        if (aText < bText) return -1 * sortOrder;
+        if (aText > bText) return 1 * sortOrder;
         return 0;
       });
       sortOrder *= -1;
@@ -1063,10 +942,9 @@
       const rows = tbody.querySelectorAll("tr");
       rows.forEach(row => {
         let show = true;
-        // Skip filtering for Active and Action columns (first and last columns)
-        for(let i = 1; i < row.children.length - 1; i++){
+        for (let i = 1; i < row.children.length - 1; i++) {
           const cellText = row.children[i].textContent.toLowerCase();
-          if(filters[i+1] && !cellText.includes(filters[i+1])){
+          if (filters[i+1] && !cellText.includes(filters[i+1])) {
             show = false;
             break;
           }
@@ -1075,228 +953,29 @@
       });
     }
     
-    toggleDataTableBtn.addEventListener("click", function(){
-      if(dataTableContainer.style.display === "none" || dataTableContainer.style.display === ""){
-        dataTableContainer.style.display = "block";
-        toggleDataTableBtn.textContent = "Hide Full Program";
+    document.getElementById('toggleDataTableBtn').addEventListener("click", function() {
+      const container = document.getElementById('dataTableContainer');
+      if (container.style.display === "none" || container.style.display === "") {
+        container.style.display = "block";
+        this.textContent = "Hide Full Program";
         buildDataTable();
       } else {
-        dataTableContainer.style.display = "none";
-        toggleDataTableBtn.textContent = "Show Full Program";
+        container.style.display = "none";
+        this.textContent = "Show Full Program";
       }
     });
-
-    /********************************************************
-     * NEW: Simple Edit Modal for Table Rows / Adding New Record
-     ********************************************************/
-    const simpleEditModal = document.getElementById('simpleEditModal');
-    const closeSimpleEditModal = document.getElementById('closeSimpleEditModal');
-    const simpleEditForm = document.getElementById('simpleEditForm');
-    const simpleModalTitle = document.getElementById('simpleModalTitle');
-    const simpleEditChild = document.getElementById('simpleEditChild');
-    const simpleEditContentArea = document.getElementById('simpleEditContentArea');
-    const simpleEditProgram = document.getElementById('simpleEditProgram');
-    const simpleEditTarget = document.getElementById('simpleEditTarget');
-    const simpleEditSD = document.getElementById('simpleEditSD');
-    const simpleEditNote = document.getElementById('simpleEditNote');
-    const simpleEditActive = document.getElementById('simpleEditActive');
-    const simpleOriginalChild = document.getElementById('simpleOriginalChild');
-    const simpleOriginalArea = document.getElementById('simpleOriginalArea');
-    const simpleOriginalProgram = document.getElementById('simpleOriginalProgram');
-    const simpleOriginalTarget = document.getElementById('simpleOriginalTarget');
-    const simpleCancelEditBtn = document.getElementById('simpleCancelEditBtn');
-    const simpleEditModeField = document.getElementById('simpleEditMode');
-
-    // --- Datalist update functions for the simple modal ---
-    function updateChildDatalist() {
-      const datalist = document.getElementById('childList');
-      datalist.innerHTML = "";
-      Object.keys(appData).forEach(child => {
-        const option = document.createElement('option');
-        option.value = child;
-        datalist.appendChild(option);
-      });
-    }
-    function updateContentAreaDatalist() {
-      const datalist = document.getElementById('contentAreaList');
-      datalist.innerHTML = "";
-      let childVal = simpleEditChild.value;
-      if(appData[childVal]){
-        Object.keys(appData[childVal]).forEach(area => {
-          const option = document.createElement('option');
-          option.value = area;
-          datalist.appendChild(option);
-        });
-      }
-    }
-    function updateProgramDatalist() {
-      const datalist = document.getElementById('programList');
-      datalist.innerHTML = "";
-      let childVal = simpleEditChild.value;
-      let areaVal = simpleEditContentArea.value;
-      if(appData[childVal] && appData[childVal][areaVal]){
-        Object.keys(appData[childVal][areaVal]).forEach(prog => {
-          const option = document.createElement('option');
-          option.value = prog;
-          datalist.appendChild(option);
-        });
-      }
-    }
-    function updateTargetDatalist() {
-      const datalist = document.getElementById('targetList');
-      datalist.innerHTML = "";
-      let childVal = simpleEditChild.value;
-      let areaVal = simpleEditContentArea.value;
-      let progVal = simpleEditProgram.value;
-      if(appData[childVal] && appData[childVal][areaVal] && appData[childVal][areaVal][progVal]){
-        Object.keys(appData[childVal][areaVal][progVal]).forEach(targ => {
-          const option = document.createElement('option');
-          option.value = targ;
-          datalist.appendChild(option);
-        });
-      }
-    }
-    simpleEditChild.addEventListener('input', updateContentAreaDatalist);
-    simpleEditContentArea.addEventListener('input', updateProgramDatalist);
-    simpleEditProgram.addEventListener('input', updateTargetDatalist);
-
-    function openSimpleEditModal(data, mode) {
-      simpleEditModeField.value = mode;
-      if(mode === "edit"){
-        simpleModalTitle.textContent = "Edit Record";
-        simpleEditChild.value = data.child || "";
-        simpleEditContentArea.value = data.area || "";
-        simpleEditProgram.value = data.program || "";
-        simpleEditTarget.value = data.target || "";
-        simpleEditSD.value = data.sd || "";
-        simpleEditNote.value = data.note || "";
-        simpleEditActive.checked = (data.active === false ? false : true);
-        simpleOriginalChild.value = data.child || "";
-        simpleOriginalArea.value = data.area || "";
-        simpleOriginalProgram.value = data.program || "";
-        simpleOriginalTarget.value = data.target || "";
-      } else if(mode === "add"){
-        simpleModalTitle.textContent = "Add New Record";
-        // If Child Name is locked at the top, default to that.
-        if(document.getElementById("lockChildName").checked){
-          simpleEditChild.value = childNameSelect.value;
-        } else {
-          simpleEditChild.value = "";
-        }
-        simpleEditContentArea.value = "";
-        simpleEditProgram.value = "";
-        simpleEditTarget.value = "";
-        simpleEditSD.value = "";
-        simpleEditNote.value = "";
-        simpleEditActive.checked = false;  // Unchecked by default for new record.
-        simpleOriginalChild.value = "";
-        simpleOriginalArea.value = "";
-        simpleOriginalProgram.value = "";
-        simpleOriginalTarget.value = "";
-      }
-      updateChildDatalist();
-      updateContentAreaDatalist();
-      updateProgramDatalist();
-      updateTargetDatalist();
-      simpleEditModal.style.display = "block";
-    }
-    function closeSimpleEditModalFunc() {
-      simpleEditModal.style.display = "none";
-    }
-    closeSimpleEditModal.addEventListener('click', closeSimpleEditModalFunc);
-    simpleCancelEditBtn.addEventListener('click', closeSimpleEditModalFunc);
-
-    simpleEditForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const mode = simpleEditModeField.value; // "edit" or "add"
-      const newChild = simpleEditChild.value.trim();
-      const newArea = simpleEditContentArea.value.trim();
-      const newProg = simpleEditProgram.value.trim();
-      const newTarget = simpleEditTarget.value.trim();
-      const newSD = simpleEditSD.value.trim();
-      const newNote = simpleEditNote.value.trim();
-      const newActive = simpleEditActive.checked;
-      
-      if(!newChild || !newArea || !newProg || !newTarget || !newSD || !newNote){
-        alert("All fields are required.");
-        return;
-      }
-      
-      if(mode === "edit"){
-        const origChild = simpleOriginalChild.value;
-        const origArea = simpleOriginalArea.value;
-        const origProg = simpleOriginalProgram.value;
-        const origTarget = simpleOriginalTarget.value;
-        if(origChild && origArea && origProg && origTarget){
-          delete appData[origChild][origArea][origProg][origTarget];
-          if(Object.keys(appData[origChild][origArea][origProg]).length === 0){
-            delete appData[origChild][origArea][origProg];
-            if(Object.keys(appData[origChild][origArea]).length === 0){
-              delete appData[origChild][origArea];
-              if(Object.keys(appData[origChild]).length === 0){
-                delete appData[origChild];
-              }
-            }
-          }
-        }
-      }
-      if(!appData[newChild]){
-        appData[newChild] = {};
-      }
-      if(!appData[newChild][newArea]){
-        appData[newChild][newArea] = {};
-      }
-      if(!appData[newChild][newArea][newProg]){
-        appData[newChild][newArea][newProg] = {};
-      }
-      if(mode === "add" && appData[newChild][newArea][newProg][newTarget]){
-        if(!confirm("Target already exists. Overwrite?")){
-          return;
-        }
-      }
-      appData[newChild][newArea][newProg][newTarget] = {
-        sd: newSD,
-        note: newNote,
-        active: newActive
-      };
-      closeSimpleEditModalFunc();
-      buildDataTable();
-      if(childNameSelect.value === simpleOriginalChild.value &&
-         contentAreaSelect.value === simpleOriginalArea.value &&
-         programSelect.value === simpleOriginalProgram.value &&
-         targetSelect.value === simpleOriginalTarget.value){
-           childNameSelect.value = newChild;
-           updateContentAreas();
-           contentAreaSelect.value = newArea;
-           updateProgramSelect();
-           programSelect.value = newProg;
-           updateTargetSelect();
-           targetSelect.value = newTarget;
-           updateInstructions();
-           updateDescription();
-           updatePriorResults();
-      }
-    });
-
-    /********************************************************
-     * New Button for Adding New Record
-     ********************************************************/
-    const addNewRecordBtn = document.getElementById('addNewRecordBtn');
-    addNewRecordBtn.addEventListener('click', function(){
-      openSimpleEditModal({}, "add");
-    });
-
-    /********************************************************
-     * (Clicking outside a modal closes it)
-     ********************************************************/
+    
+    /******** Close modal if click outside ********/
     window.addEventListener('click', function(e) {
-      if(e.target == editModal){
-        closeEditModal();
-      }
-      if(e.target == simpleEditModal){
-        closeSimpleEditModalFunc();
-      }
+      if (e.target == simpleEditModal) { closeSimpleEditModalFunc(); }
     });
   </script>
+  
+  <!-- Datalists for Simple Edit Modal -->
+  <datalist id="childList"></datalist>
+  <datalist id="contentAreaList"></datalist>
+  <datalist id="programList"></datalist>
+  <datalist id="targetList"></datalist>
+  
 </body>
 </html>
