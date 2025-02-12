@@ -26,10 +26,7 @@
     .slider {
       position: absolute;
       cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       background-color: #fff;
       border: 1px solid #ccc;
       border-radius: 24px;
@@ -56,22 +53,16 @@
       display: flex; align-items: center; margin-bottom: 1rem;
     }
     .child-header .dropdown-label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-right: 1rem;
+      display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;
     }
     .child-header label { font-weight: bold; }
     
     /* Dropdowns */
     .dropdowns { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem; }
     .dropdown-row { display: flex; flex-direction: column; }
-    /* New container for label and switch so the button appears immediately to the left */
+    /* Container for label and switch */
     .dropdown-label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.3rem;
+      display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem;
     }
     .dropdown-label label { font-weight: bold; }
     .dropdown-row select { width: 100%; padding: 0.3rem; }
@@ -246,7 +237,7 @@
     <div class="instructions">
       <p id="selectedDescription" class="chosen-description"></p>
       <div class="desc-buttons">
-        <!-- Since details are shown by default, the toggle button text is set to "Hide Details" -->
+        <!-- Details are shown by default so the toggle button reads "Hide Details" -->
         <button id="toggleDetailsBtn">Hide Details</button>
         <button id="selectRandomBtn">Select Random</button>
       </div>
@@ -598,50 +589,83 @@
     updateDescription();
     updatePriorResults();
     
-    /******** Randomization Functionality with Lock Checks ********/
+    /******** Randomization Functionality with Cascading Locks ********/
     function randomizeTrialData() {
-      const lockChild = document.getElementById('lockChild').checked;
-      const lockContentArea = document.getElementById('lockContentArea').checked;
-      const lockProgram = document.getElementById('lockProgram').checked;
-      const lockTarget = document.getElementById('lockTarget').checked;
-      
+      // Get the raw lock states from the checkboxes.
+      let rawLockChild = document.getElementById('lockChild').checked;
+      let rawLockContentArea = document.getElementById('lockContentArea').checked;
+      let rawLockProgram = document.getElementById('lockProgram').checked;
+      let rawLockTarget = document.getElementById('lockTarget').checked;
+    
+      // Determine effective locks based on the hierarchy.
+      // A lower-level lock forces all higher levels to be locked.
+      let lockChild = rawLockChild || rawLockContentArea || rawLockProgram || rawLockTarget;
+      let lockContentArea = rawLockContentArea || rawLockProgram || rawLockTarget;
+      let lockProgram = rawLockProgram || rawLockTarget;
+      let lockTarget = rawLockTarget; // Lowest level; no further cascading
+    
+      // Preserve current selections.
+      let currentChild = childNameSelect.value;
+      let currentArea = contentAreaSelect.value;
+      let currentProgram = programSelect.value;
+      let currentTarget = targetSelect.value;
+    
+      // --- Randomize Child (if not effectively locked) ---
       if (!lockChild) {
         const validChildren = Object.keys(appData).filter(child => childHasActiveRecords(child));
         if (validChildren.length > 0) {
-          const randomChild = validChildren[Math.floor(Math.random() * validChildren.length)];
-          childNameSelect.value = randomChild;
+          currentChild = validChildren[Math.floor(Math.random() * validChildren.length)];
+          childNameSelect.value = currentChild;
         }
       }
-      const selectedChild = childNameSelect.value;
-      if (!appData[selectedChild]) return;
-      const childData = appData[selectedChild];
-      
+      if (!appData[currentChild]) return;
+      const childData = appData[currentChild];
+    
+      // --- Randomize Content Area (if not effectively locked) ---
+      const availableAreas = Object.keys(childData);
       if (!lockContentArea) {
-        const contentAreas = Object.keys(childData);
-        if (contentAreas.length > 0) {
-          const randomArea = contentAreas[Math.floor(Math.random() * contentAreas.length)];
-          contentAreaSelect.value = randomArea;
+        if (availableAreas.length > 0) {
+          currentArea = availableAreas[Math.floor(Math.random() * availableAreas.length)];
+          contentAreaSelect.value = currentArea;
+        }
+      } else {
+        if (!availableAreas.includes(currentArea)) {
+          currentArea = availableAreas[0];
+          contentAreaSelect.value = currentArea;
         }
       }
       updateProgramSelect();
-      
+    
+      // --- Randomize Program (if not effectively locked) ---
+      const availablePrograms = Object.keys(childData[currentArea] || {});
       if (!lockProgram) {
-        const programs = Object.keys(childData[contentAreaSelect.value] || {});
-        if (programs.length > 0) {
-          const randomProgram = programs[Math.floor(Math.random() * programs.length)];
-          programSelect.value = randomProgram;
+        if (availablePrograms.length > 0) {
+          currentProgram = availablePrograms[Math.floor(Math.random() * availablePrograms.length)];
+          programSelect.value = currentProgram;
+        }
+      } else {
+        if (!availablePrograms.includes(currentProgram)) {
+          currentProgram = availablePrograms[0];
+          programSelect.value = currentProgram;
         }
       }
       updateTargetSelect();
-      
+    
+      // --- Randomize Target (if not effectively locked) ---
+      const availableTargets = Object.keys(childData[currentArea][currentProgram] || {})
+                                  .filter(t => childData[currentArea][currentProgram][t].active);
       if (!lockTarget) {
-        const targets = Object.keys(childData[contentAreaSelect.value][programSelect.value] || {})
-                        .filter(t => childData[contentAreaSelect.value][programSelect.value][t].active);
-        if (targets.length > 0) {
-          const randomTarget = targets[Math.floor(Math.random() * targets.length)];
-          targetSelect.value = randomTarget;
+        if (availableTargets.length > 0) {
+          currentTarget = availableTargets[Math.floor(Math.random() * availableTargets.length)];
+          targetSelect.value = currentTarget;
+        }
+      } else {
+        if (!availableTargets.includes(currentTarget)) {
+          currentTarget = availableTargets[0];
+          targetSelect.value = currentTarget;
         }
       }
+    
       updateInstructions();
       updateDescription();
       updatePriorResults();
@@ -652,7 +676,6 @@
     const toggleBtn = document.getElementById('toggleDetailsBtn');
     toggleBtn.addEventListener('click', () => {
       const topSection = document.getElementById('topSection');
-      // Use computed style to check current display state
       const currentDisplay = window.getComputedStyle(topSection).display;
       if (currentDisplay === 'none') {
         topSection.style.display = 'block';
@@ -691,9 +714,7 @@
     /******** CSV Import Functionality ********/
     const importProgramBtn = document.getElementById('importProgramBtn');
     const csvFileInput = document.getElementById('csvFileInput');
-    
     importProgramBtn.addEventListener('click', () => { csvFileInput.click(); });
-    
     csvFileInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -705,7 +726,6 @@
       };
       reader.readAsText(file);
     });
-    
     function parseCSVImport(csvText) {
       const lines = csvText.split(/\r?\n/);
       if (lines.length < 2) return alert("CSV file appears empty.");
@@ -739,7 +759,6 @@
     /******** Export Trial Data as CSV ********/
     const exportTrialDataBtn = document.getElementById("exportTrialDataBtn");
     exportTrialDataBtn.addEventListener("click", exportTrialData);
-    
     function exportTrialData() {
       if (trialHistory.length === 0) {
         alert("No trial data to export.");
