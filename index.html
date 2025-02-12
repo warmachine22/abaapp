@@ -11,7 +11,7 @@
     /* Main container (max-width for top portion) */
     .container { max-width: 600px; margin: 0 auto; padding: 1rem; }
     
-    /* Child Name Header (lock toggle removed) */
+    /* Child Name Header */
     .child-header {
       display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 1rem;
     }
@@ -78,7 +78,7 @@
     .data-buttons {
       display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem;
     }
-    #toggleDataTableBtn, #addNewRecordBtn, #importProgramBtn {
+    #toggleDataTableBtn, #addNewRecordBtn, #importProgramBtn, #exportTrialDataBtn {
       padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;
     }
     #toggleDataTableBtn { background: #0288d1; color: white; }
@@ -87,6 +87,8 @@
     #addNewRecordBtn:hover { background: #00695c; }
     #importProgramBtn { background: #8e24aa; color: white; }
     #importProgramBtn:hover { background: #7b1fa2; }
+    #exportTrialDataBtn { background: #ff9800; color: white; }
+    #exportTrialDataBtn:hover { background: #fb8c00; }
     #dataTableContainer { overflow-x: auto; padding: 0 1rem; }
     #dataTable {
       width: 100%; border-collapse: collapse; margin-bottom: 2rem;
@@ -220,14 +222,15 @@
       <button id="toggleDataTableBtn">Show Full Program</button>
       <button id="addNewRecordBtn">Add New Record</button>
       <button id="importProgramBtn">Import Program</button>
+      <button id="exportTrialDataBtn">Export Trial Data CSV</button>
     </div>
     <div id="dataTableContainer" style="display: none;">
       <table id="dataTable"></table>
     </div>
   </div>
   
-  <!-- Hidden CSV File Input -->
-  <input type="file" id="csvFileInput" accept=".csv" style="display: none;" />
+  <!-- Hidden CSV File Input (hidden using opacity/positioning for better compatibility on iOS) -->
+  <input type="file" id="csvFileInput" accept=".csv" style="opacity: 0; position: absolute; left: -9999px;" />
   
   <!-- Simple Edit Modal (for both adding and editing records) -->
   <div id="simpleEditModal" class="modal">
@@ -350,6 +353,21 @@
       saveAppData();
     }
     
+    /******** Helper: Check if a child has any active record ********/
+    function childHasActiveRecords(childName) {
+      if (!appData[childName]) return false;
+      for (const area in appData[childName]) {
+        for (const program in appData[childName][area]) {
+          for (const target in appData[childName][area][program]) {
+            if (appData[childName][area][program][target].active) {
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    }
+    
     /******** Functions for Main Interface ********/
     const childNameSelect = document.getElementById("childNameSelect");
     const contentAreaSelect = document.getElementById("contentAreaSelect");
@@ -362,12 +380,18 @@
     
     function populateChildNames() {
       childNameSelect.innerHTML = "";
-      Object.keys(appData).forEach(child => {
+      // Only include children with at least one active record
+      const validChildren = Object.keys(appData).filter(child => childHasActiveRecords(child));
+      validChildren.forEach(child => {
         const opt = document.createElement("option");
         opt.value = child;
         opt.textContent = child;
         childNameSelect.appendChild(opt);
       });
+      // If the current child is not valid, default to the first valid one
+      if (!validChildren.includes(childNameSelect.value) && validChildren.length) {
+        childNameSelect.value = validChildren[0];
+      }
     }
     function updateContentAreas() {
       const selectedChild = childNameSelect.value;
@@ -536,12 +560,14 @@
       });
     }
     function recordTrial(result) {
+      // Added timestamp (ISO format)
       const record = {
         child: childNameSelect.value,
         contentArea: contentAreaSelect.value,
         program: programSelect.value,
         target: targetSelect.value,
-        result: result
+        result: result,
+        timestamp: new Date().toISOString()
       };
       trialHistory.push(record);
       updatePriorResults();
@@ -555,7 +581,12 @@
     /******** CSV Import Functionality ********/
     const importProgramBtn = document.getElementById('importProgramBtn');
     const csvFileInput = document.getElementById('csvFileInput');
-    importProgramBtn.addEventListener('click', () => { csvFileInput.click(); });
+    
+    // Directly trigger file selection on user click
+    importProgramBtn.addEventListener('click', () => {
+      csvFileInput.click();
+    });
+    
     csvFileInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -563,9 +594,12 @@
       reader.onload = function(e) {
         const text = e.target.result;
         parseCSVImport(text);
+        // Reset the file input so the same file can be re-selected if needed
+        csvFileInput.value = "";
       };
       reader.readAsText(file);
     });
+    
     function parseCSVImport(csvText) {
       const lines = csvText.split(/\r?\n/);
       if (lines.length < 2) return alert("CSV file appears empty.");
@@ -596,8 +630,41 @@
       alert("CSV import successful.");
     }
     
-    /******** Save appData to localStorage ********/
-    function saveAppData() { localStorage.setItem("appData", JSON.stringify(appData)); }
+    /******** Export Trial Data as CSV ********/
+    const exportTrialDataBtn = document.getElementById("exportTrialDataBtn");
+    exportTrialDataBtn.addEventListener("click", exportTrialData);
+    
+    function exportTrialData() {
+      if (trialHistory.length === 0) {
+        alert("No trial data to export.");
+        return;
+      }
+      const header = ["Child", "Content Area", "Program", "Target", "Result", "Timestamp"];
+      let csvContent = header.join(",") + "\n";
+      trialHistory.forEach(record => {
+        const row = [
+          record.child,
+          record.contentArea,
+          record.program,
+          record.target,
+          record.result,
+          record.timestamp
+        ];
+        // Wrap each value in quotes in case of commas
+        csvContent += row.map(v => `"${v}"`).join(",") + "\n";
+      });
+      
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "trial_data.csv";
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
     
     /******** Simple Edit Modal (for adding/editing records) ********/
     const simpleEditModal = document.getElementById('simpleEditModal');
@@ -773,48 +840,6 @@
     document.getElementById('addNewRecordBtn').addEventListener('click', function() {
       openSimpleEditModal({}, "add");
     });
-    
-    /******** CSV Import Functionality ********/
-    document.getElementById('importProgramBtn').addEventListener('click', () => { csvFileInput.click(); });
-    csvFileInput.addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const text = e.target.result;
-        parseCSVImport(text);
-      };
-      reader.readAsText(file);
-    });
-    function parseCSVImport(csvText) {
-      const lines = csvText.split(/\r?\n/);
-      if (lines.length < 2) return alert("CSV file appears empty.");
-      const header = lines[0].split(",").map(h => h.trim().toLowerCase());
-      const expected = ["child", "content area", "program", "target", "sd", "note", "active"];
-      if (header.join() !== expected.join()) {
-        return alert("CSV header does not match expected format. Expected: " + expected.join(", "));
-      }
-      for (let i = 1; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (!line) continue;
-        const fields = line.split(",").map(f => f.trim());
-        if (fields.length < 7) continue;
-        const [child, area, program, target, sd, note, activeStr] = fields;
-        const active = (activeStr.toLowerCase() === "true" || activeStr === "1");
-        if (!appData[child]) { appData[child] = {}; }
-        if (!appData[child][area]) { appData[child][area] = {}; }
-        if (!appData[child][area][program]) { appData[child][area][program] = {}; }
-        appData[child][area][program][target] = { sd: sd, note: note, active: active };
-      }
-      saveAppData();
-      populateChildNames();
-      updateContentAreas();
-      updateProgramSelect();
-      updateTargetSelect();
-      updateInstructions();
-      updateDescription();
-      alert("CSV import successful.");
-    }
     
     /******** Data Management: Table View ********/
     function buildDataTable() {
