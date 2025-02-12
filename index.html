@@ -137,7 +137,7 @@
     .data-buttons {
       display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem;
     }
-    #toggleDataTableBtn, #addNewRecordBtn, #importProgramBtn, #exportTrialDataBtn {
+    #toggleDataTableBtn, #addNewRecordBtn, #importProgramBtn, #exportTrialDataBtn, #resetDataBtn {
       padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;
     }
     #toggleDataTableBtn { background: #0288d1; color: white; }
@@ -148,6 +148,16 @@
     #importProgramBtn:hover { background: #7b1fa2; }
     #exportTrialDataBtn { background: #ff9800; color: white; }
     #exportTrialDataBtn:hover { background: #fb8c00; }
+    
+    /* The new Reset Data button */
+    #resetDataBtn {
+      background: #d32f2f; 
+      color: #fff;
+    }
+    #resetDataBtn:hover {
+      background: #c62828;
+    }
+
     #dataTableContainer { overflow-x: auto; padding: 0 1rem; }
     #dataTable {
       width: 100%; border-collapse: collapse; margin-bottom: 2rem;
@@ -311,6 +321,8 @@
       <button id="addNewRecordBtn">Add New Record</button>
       <button id="importProgramBtn">Import Program</button>
       <button id="exportTrialDataBtn">Export Trial Data CSV</button>
+      <!-- New Reset Data button -->
+      <button id="resetDataBtn">Reset Data</button>
     </div>
     <div id="dataTableContainer" style="display: none;">
       <table id="dataTable"></table>
@@ -392,58 +404,71 @@
       localStorage.setItem("appData", JSON.stringify(appData));
     }
     
-    /******** Global Data Structure ********/
-    let appData = loadAppData();
-    if (!appData || Object.keys(appData).length === 0) {
-      // Default sample data
-      appData = {
+    /******** Default Minimal Data for Reset ********/
+    function getDefaultData() {
+      return {
         "Test Child": {
           "Math Skills": {
             "Counting": {
-              "Count to 10": { sd: "Count from 1 to 10", note: "Encourage counting", active: true }
+              "Count to 5": {
+                sd: "Count from 1 to 5",
+                note: "Encourage counting slowly",
+                active: true
+              },
+              "Count to 10": {
+                sd: "Count from 1 to 10",
+                note: "Praise after each attempt",
+                active: true
+              }
             },
-            "Shapes": {
-              "Identify Circle": { sd: "Identify the circle", note: "Provide visual cues", active: true }
+            "Addition": {
+              "Add single digits": {
+                sd: "Add 1-digit numbers",
+                note: "Use visual aids",
+                active: true
+              },
+              "Add doubles": {
+                sd: "Add 2-digit numbers",
+                note: "Use manipulative objects",
+                active: true
+              }
             }
           },
           "Language Skills": {
             "Naming": {
-              "Name Colors": { sd: "Name the color", note: "Use flashcards", active: true }
-            }
-          }
-        },
-        "Joe Smith": {
-          "Visual - Performance": {
-            "Single Puzzle": {
-              "Puzzle - 1 piece": { sd: '"Do the puzzle" while placing the piece...', note: "Use both hands", active: true },
-              "Puzzle - 2 pieces": { sd: '"Do the puzzle" with two pieces...', note: "Encourage problem solving", active: true }
+              "Name colors": {
+                sd: "Identify the colors",
+                note: "Use flashcards",
+                active: true
+              },
+              "Name shapes": {
+                sd: "Identify the shapes",
+                note: "Point to each shape",
+                active: true
+              }
             },
-            "Matching": {
-              "Color Matching": { sd: '"Match the colors"', note: "Use visual cues", active: true }
-            }
-          }
-        },
-        "Jane Doe": {
-          "Language - Receptive": {
-            "Imitation": {
-              "Tracing Letters": { sd: '"Trace the letters"', note: "Focus on letter shapes", active: true }
-            },
-            "Labeling (Tacts)": {
-              "Conversation Skills": { sd: '"Talk about daily activities"', note: "Prompt with questions", active: true }
-            }
-          }
-        },
-        "Bob Johnson": {
-          "Social Skills": {
-            "Social Greetings": {
-              "Greeting by name": { sd: '"Say hello to your friend"', note: "Maintain eye contact", active: true }
-            },
-            "Adaptive Skills": {
-              "Sharing Toys": { sd: '"Share your toys with a peer"', note: "Praise sharing behavior", active: true }
+            "Labeling": {
+              "Label objects": {
+                sd: "What is this item?",
+                note: "Use real items for labeling",
+                active: true
+              },
+              "Label actions": {
+                sd: "What am I doing?",
+                note: "Use pictures of actions",
+                active: true
+              }
             }
           }
         }
       };
+    }
+    
+    /******** Global Data Structure ********/
+    let appData = loadAppData();
+    if (!appData || Object.keys(appData).length === 0) {
+      // If there's no data, load default
+      appData = getDefaultData();
       saveAppData();
     }
     
@@ -1044,22 +1069,24 @@
       rows.forEach(row => {
         tbody += "<tr>";
         tbody += `<td>${row.child}</td>`;
-        tbody += `<td style="text-align: center;"><input type="checkbox" class="activeCheckbox" 
-                         data-child="${row.child}" 
-                         data-contentArea="${row.contentArea}" 
-                         data-program="${row.program}" 
-                         data-target="${row.target}" 
-                         ${row.active ? "checked" : ""} /></td>`;
+        tbody += `<td style="text-align: center;">
+                    <input type="checkbox" class="activeCheckbox" 
+                           data-child="${row.child}" 
+                           data-contentArea="${row.contentArea}" 
+                           data-program="${row.program}" 
+                           data-target="${row.target}" 
+                           ${row.active ? "checked" : ""} />
+                  </td>`;
         tbody += `<td>${row.contentArea}</td>`;
         tbody += `<td>${row.program}</td>`;
         tbody += `<td>${row.target}</td>`;
         tbody += `<td>${row.sd}</td>`;
         tbody += `<td>${row.note}</td>`;
         tbody += `<td><button class="tableEditBtn" 
-                         data-child="${row.child}" 
-                         data-contentArea="${row.contentArea}" 
-                         data-program="${row.program}" 
-                         data-target="${row.target}">Edit</button></td>`;
+                           data-child="${row.child}" 
+                           data-contentArea="${row.contentArea}" 
+                           data-program="${row.program}" 
+                           data-target="${row.target}">Edit</button></td>`;
         tbody += "</tr>";
       });
       tbody += "</tbody>";
@@ -1109,7 +1136,7 @@
       });
     }
     
-    // Updated filterTable function using data-col to match columns
+    // Filter function using data-col indexes
     function filterTable() {
       const filters = {};
       // Collect filter text from each input
@@ -1165,6 +1192,30 @@
         container.style.display = "none";
         this.textContent = "Show Full Program";
       }
+    });
+    
+    /******** RESET DATA BUTTON ********/
+    const resetDataBtn = document.getElementById('resetDataBtn');
+    resetDataBtn.addEventListener('click', () => {
+      if (!confirm("Are you sure? All data will be deleted and replaced with the default Test Child data.")) return;
+      
+      // Wipe everything and restore the minimal default
+      appData = getDefaultData();
+      trialHistory = [];
+      saveAppData();
+      
+      // Re-init the UI
+      populateChildNames();
+      updateContentAreas();
+      updateProgramSelect();
+      updateTargetSelect();
+      updateInstructions();
+      updateDescription();
+      updatePriorResults();
+      
+      // If table is showing, refresh it
+      buildDataTable();
+      alert("Data has been reset to default.");
     });
     
     /******** Close modal if click outside ********/
