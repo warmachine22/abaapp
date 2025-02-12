@@ -11,16 +11,69 @@
     /* Main container (max-width for top portion) */
     .container { max-width: 600px; margin: 0 auto; padding: 1rem; }
     
+    /* Switch styling for lock toggles */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 24px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 24px;
+      transition: 0.4s;
+      text-align: center;
+      line-height: 24px;
+      font-size: 10px;
+      font-family: Arial, sans-serif;
+      color: #000;
+    }
+    .slider:before {
+      content: "UNLOCK";
+      transition: 0.4s;
+    }
+    input:checked + .slider {
+      background-color: #c8e6c9;
+    }
+    input:checked + .slider:before {
+      content: "LOCK";
+    }
+    
     /* Child Name Header */
     .child-header {
-      display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 1rem;
+      display: flex; align-items: center; margin-bottom: 1rem;
+    }
+    .child-header .dropdown-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-right: 1rem;
     }
     .child-header label { font-weight: bold; }
     
     /* Dropdowns */
     .dropdowns { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem; }
     .dropdown-row { display: flex; flex-direction: column; }
-    .dropdown-row label { font-weight: bold; margin-bottom: 0.3rem; }
+    /* New container for label and switch so the button appears immediately to the left */
+    .dropdown-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.3rem;
+    }
+    .dropdown-label label { font-weight: bold; }
     .dropdown-row select { width: 100%; padding: 0.3rem; }
     
     /* Instructions / SD & Notes */
@@ -138,25 +191,52 @@
 <body>
   <!-- Main App -->
   <div class="container">
-    <!-- Child Name Header -->
+    <!-- Child Name Header with Lock Toggle (child locked by default) -->
     <div class="child-header">
-      <label for="childNameSelect">Child Name:</label>
+      <div class="dropdown-label">
+        <label class="switch">
+          <input type="checkbox" id="lockChild" checked>
+          <span class="slider"></span>
+        </label>
+        <label for="childNameSelect">Child Name:</label>
+      </div>
       <select id="childNameSelect"></select>
     </div>
     
-    <!-- Top Section: Dropdowns for Content Area, Program, Target -->
+    <!-- Top Section: Dropdowns for Content Area, Program, Target with Lock Toggles -->
     <div id="topSection">
       <div class="dropdowns">
+        <!-- Content Area -->
         <div class="dropdown-row">
-          <label for="contentAreaSelect">Content Area</label>
+          <div class="dropdown-label">
+            <label class="switch">
+              <input type="checkbox" id="lockContentArea">
+              <span class="slider"></span>
+            </label>
+            <label for="contentAreaSelect">Content Area</label>
+          </div>
           <select id="contentAreaSelect"></select>
         </div>
+        <!-- Program -->
         <div class="dropdown-row">
-          <label for="programSelect">Program</label>
+          <div class="dropdown-label">
+            <label class="switch">
+              <input type="checkbox" id="lockProgram">
+              <span class="slider"></span>
+            </label>
+            <label for="programSelect">Program</label>
+          </div>
           <select id="programSelect"></select>
         </div>
+        <!-- Target -->
         <div class="dropdown-row">
-          <label for="targetSelect">Target</label>
+          <div class="dropdown-label">
+            <label class="switch">
+              <input type="checkbox" id="lockTarget">
+              <span class="slider"></span>
+            </label>
+            <label for="targetSelect">Target</label>
+          </div>
           <select id="targetSelect"></select>
         </div>
       </div>
@@ -229,16 +309,16 @@
     </div>
   </div>
   
-  <!-- Hidden CSV File Input (hidden using opacity/positioning for better compatibility on iOS) -->
+  <!-- Hidden CSV File Input (for CSV import) -->
   <input type="file" id="csvFileInput" accept=".csv" style="opacity: 0; position: absolute; left: -9999px;" />
   
-  <!-- Simple Edit Modal (for both adding and editing records) -->
+  <!-- Simple Edit Modal (for adding/editing records) -->
   <div id="simpleEditModal" class="modal">
     <div class="modal-content">
       <span id="closeSimpleEditModal" class="close">&times;</span>
       <h2 id="simpleModalTitle">Edit Record</h2>
       <form id="simpleEditForm">
-        <!-- Hidden field to track mode ("edit" or "add") -->
+        <!-- Hidden fields to track mode ("edit" or "add") and original record keys -->
         <input type="hidden" id="simpleEditMode" value="edit">
         <input type="hidden" id="simpleOriginalChild" value="">
         <input type="hidden" id="simpleOriginalArea" value="">
@@ -268,7 +348,7 @@
         <label for="simpleEditNote">Note</label>
         <textarea id="simpleEditNote" required></textarea>
         
-        <!-- Active checkbox (unchecked by default for new records) -->
+        <!-- Active checkbox (for new records) -->
         <label>
           <input type="checkbox" id="simpleEditActive"> Active
         </label>
@@ -278,6 +358,12 @@
       </form>
     </div>
   </div>
+  
+  <!-- Datalists for Simple Edit Modal -->
+  <datalist id="childList"></datalist>
+  <datalist id="contentAreaList"></datalist>
+  <datalist id="programList"></datalist>
+  <datalist id="targetList"></datalist>
   
   <!-- Consolidated Script Block -->
   <script>
@@ -301,7 +387,7 @@
     /******** Global Data Structure ********/
     let appData = loadAppData();
     if (!appData || Object.keys(appData).length === 0) {
-      // Default sample data (includes "Test Child")
+      // Default sample data
       appData = {
         "Test Child": {
           "Math Skills": {
@@ -380,7 +466,6 @@
     
     function populateChildNames() {
       childNameSelect.innerHTML = "";
-      // Only include children with at least one active record
       const validChildren = Object.keys(appData).filter(child => childHasActiveRecords(child));
       validChildren.forEach(child => {
         const opt = document.createElement("option");
@@ -388,7 +473,6 @@
         opt.textContent = child;
         childNameSelect.appendChild(opt);
       });
-      // If the current child is not valid, default to the first valid one
       if (!validChildren.includes(childNameSelect.value) && validChildren.length) {
         childNameSelect.value = validChildren[0];
       }
@@ -478,7 +562,6 @@
       }
     }
     
-    // Set up event listeners for dropdowns
     childNameSelect.addEventListener('change', () => {
       updateContentAreas();
       updateProgramSelect();
@@ -506,7 +589,6 @@
       updatePriorResults();
     });
     
-    // Initial population
     populateChildNames();
     updateContentAreas();
     updateProgramSelect();
@@ -515,25 +597,50 @@
     updateDescription();
     updatePriorResults();
     
-    /******** Randomization Functionality ********/
+    /******** Randomization Functionality with Lock Checks ********/
     function randomizeTrialData() {
+      const lockChild = document.getElementById('lockChild').checked;
+      const lockContentArea = document.getElementById('lockContentArea').checked;
+      const lockProgram = document.getElementById('lockProgram').checked;
+      const lockTarget = document.getElementById('lockTarget').checked;
+      
+      if (!lockChild) {
+        const validChildren = Object.keys(appData).filter(child => childHasActiveRecords(child));
+        if (validChildren.length > 0) {
+          const randomChild = validChildren[Math.floor(Math.random() * validChildren.length)];
+          childNameSelect.value = randomChild;
+        }
+      }
       const selectedChild = childNameSelect.value;
       if (!appData[selectedChild]) return;
       const childData = appData[selectedChild];
-      const contentAreas = Object.keys(childData);
-      if (contentAreas.length === 0) return;
-      const randomArea = contentAreas[Math.floor(Math.random() * contentAreas.length)];
-      contentAreaSelect.value = randomArea;
+      
+      if (!lockContentArea) {
+        const contentAreas = Object.keys(childData);
+        if (contentAreas.length > 0) {
+          const randomArea = contentAreas[Math.floor(Math.random() * contentAreas.length)];
+          contentAreaSelect.value = randomArea;
+        }
+      }
       updateProgramSelect();
-      const programs = Object.keys(childData[randomArea]);
-      if (programs.length === 0) return;
-      const randomProgram = programs[Math.floor(Math.random() * programs.length)];
-      programSelect.value = randomProgram;
+      
+      if (!lockProgram) {
+        const programs = Object.keys(childData[contentAreaSelect.value] || {});
+        if (programs.length > 0) {
+          const randomProgram = programs[Math.floor(Math.random() * programs.length)];
+          programSelect.value = randomProgram;
+        }
+      }
       updateTargetSelect();
-      const targets = Object.keys(childData[randomArea][randomProgram]).filter(t => childData[randomArea][randomProgram][t].active);
-      if (targets.length === 0) return;
-      const randomTarget = targets[Math.floor(Math.random() * targets.length)];
-      targetSelect.value = randomTarget;
+      
+      if (!lockTarget) {
+        const targets = Object.keys(childData[contentAreaSelect.value][programSelect.value] || {})
+                        .filter(t => childData[contentAreaSelect.value][programSelect.value][t].active);
+        if (targets.length > 0) {
+          const randomTarget = targets[Math.floor(Math.random() * targets.length)];
+          targetSelect.value = randomTarget;
+        }
+      }
       updateInstructions();
       updateDescription();
       updatePriorResults();
@@ -553,14 +660,14 @@
       }
     });
     
-    /******** Trial Data Recording ********/
+    /******** Trial Data Recording with Confirmation Popup ********/
     function clearTrialSelection() {
       document.querySelectorAll('input[name="trialResult"]').forEach(radio => {
         radio.checked = false;
       });
     }
     function recordTrial(result) {
-      // Added timestamp (ISO format)
+      alert("Trial data recorded: " + result);
       const record = {
         child: childNameSelect.value,
         contentArea: contentAreaSelect.value,
@@ -582,10 +689,7 @@
     const importProgramBtn = document.getElementById('importProgramBtn');
     const csvFileInput = document.getElementById('csvFileInput');
     
-    // Directly trigger file selection on user click
-    importProgramBtn.addEventListener('click', () => {
-      csvFileInput.click();
-    });
+    importProgramBtn.addEventListener('click', () => { csvFileInput.click(); });
     
     csvFileInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -594,7 +698,6 @@
       reader.onload = function(e) {
         const text = e.target.result;
         parseCSVImport(text);
-        // Reset the file input so the same file can be re-selected if needed
         csvFileInput.value = "";
       };
       reader.readAsText(file);
@@ -650,10 +753,8 @@
           record.result,
           record.timestamp
         ];
-        // Wrap each value in quotes in case of commas
         csvContent += row.map(v => `"${v}"`).join(",") + "\n";
       });
-      
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -753,7 +854,7 @@
         simpleOriginalTarget.value = data.target || "";
       } else if (mode === "add") {
         simpleModalTitle.textContent = "Add New Record";
-        simpleEditChild.value = childNameSelect.value; // default to selected child's name
+        simpleEditChild.value = childNameSelect.value;
         simpleEditContentArea.value = "";
         simpleEditProgram.value = "";
         simpleEditTarget.value = "";
@@ -995,12 +1096,6 @@
       if (e.target == simpleEditModal) { closeSimpleEditModalFunc(); }
     });
   </script>
-  
-  <!-- Datalists for Simple Edit Modal -->
-  <datalist id="childList"></datalist>
-  <datalist id="contentAreaList"></datalist>
-  <datalist id="programList"></datalist>
-  <datalist id="targetList"></datalist>
-  
 </body>
 </html>
+
