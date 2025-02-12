@@ -246,7 +246,8 @@
     <div class="instructions">
       <p id="selectedDescription" class="chosen-description"></p>
       <div class="desc-buttons">
-        <button id="toggleDetailsBtn">View Details</button>
+        <!-- Since details are shown by default, the toggle button text is set to "Hide Details" -->
+        <button id="toggleDetailsBtn">Hide Details</button>
         <button id="selectRandomBtn">Select Random</button>
       </div>
       <label for="sdInput">SD (Instruction)</label>
@@ -649,9 +650,11 @@
     
     /******** Toggle Details Section ********/
     const toggleBtn = document.getElementById('toggleDetailsBtn');
-    const topSection = document.getElementById('topSection');
     toggleBtn.addEventListener('click', () => {
-      if (topSection.style.display === 'none' || topSection.style.display === '') {
+      const topSection = document.getElementById('topSection');
+      // Use computed style to check current display state
+      const currentDisplay = window.getComputedStyle(topSection).display;
+      if (currentDisplay === 'none') {
         topSection.style.display = 'block';
         toggleBtn.textContent = 'Hide Details';
       } else {
@@ -1098,4 +1101,3 @@
   </script>
 </body>
 </html>
-
