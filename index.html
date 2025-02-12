@@ -70,8 +70,23 @@
     /* Instructions / SD & Notes */
     .instructions { display: flex; flex-direction: column; margin-bottom: 1rem; }
     #selectedDescription {
-      font-size: 1.5em; text-align: center; background-color: red; color: white;
-      padding: 10px; border-radius: 5px; margin-bottom: 1rem;
+      font-size: 1.5em; 
+      text-align: center; 
+      margin-bottom: 1rem;
+    }
+    .desc-main {
+      background-color: red;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .target-highlight {
+      background-color: green;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      display: inline-block;
+      margin-top: 10px;
     }
     .desc-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
     .desc-buttons button {
@@ -235,7 +250,8 @@
     
     <!-- Instructions and SD/Notes -->
     <div class="instructions">
-      <p id="selectedDescription" class="chosen-description"></p>
+      <!-- Description with red + green styling -->
+      <p id="selectedDescription"></p>
       <div class="desc-buttons">
         <!-- Details are shown by default so the toggle button reads "Hide Details" -->
         <button id="toggleDetailsBtn">Hide Details</button>
@@ -512,6 +528,15 @@
           });
       }
     }
+    function updateDescription() {
+      const selectedChild = childNameSelect.value;
+      const selectedArea = contentAreaSelect.value;
+      const selectedProgram = programSelect.value;
+      const selectedTarget = targetSelect.value;
+      descriptionP.innerHTML =
+        '<span class="desc-main">' + selectedChild + ' -- ' + selectedArea + ' -- ' + selectedProgram + '</span><br>' +
+        '<span class="target-highlight">' + selectedTarget + '</span>';
+    }
     function updateInstructions() {
       const selectedChild = childNameSelect.value;
       const selectedArea = contentAreaSelect.value;
@@ -528,10 +553,6 @@
         sdInput.value = "";
         notesArea.value = "";
       }
-    }
-    function updateDescription() {
-      const selectedChild = childNameSelect.value;
-      descriptionP.textContent = selectedChild + ' -- ' + contentAreaSelect.value + ' -- ' + programSelect.value + ' -- ' + targetSelect.value;
     }
     function updatePriorResults() {
       const selectedChild = childNameSelect.value;
@@ -914,6 +935,7 @@
         return;
       }
       
+      // Handle existing record removal if editing
       if (mode === "edit") {
         const origChild = simpleOriginalChild.value;
         const origArea = simpleOriginalArea.value;
@@ -932,15 +954,22 @@
           }
         }
       }
+      
+      // Build hierarchy if it doesn't exist
       if (!appData[newChild]) { appData[newChild] = {}; }
       if (!appData[newChild][newArea]) { appData[newChild][newArea] = {}; }
       if (!appData[newChild][newArea][newProg]) { appData[newChild][newArea][newProg] = {}; }
+      
+      // Overwrite warning if record already exists
       if (mode === "add" && appData[newChild][newArea][newProg][newTarget]) {
         if (!confirm("Target already exists. Overwrite?")) { return; }
       }
+      // Add or replace record
       appData[newChild][newArea][newProg][newTarget] = { sd: newSD, note: newNote, active: newActive };
       closeSimpleEditModalFunc();
       buildDataTable();
+      
+      // If we updated the currently selected record, refresh the UI
       if (childNameSelect.value === simpleOriginalChild.value &&
           contentAreaSelect.value === simpleOriginalArea.value &&
           programSelect.value === simpleOriginalProgram.value &&
@@ -986,7 +1015,9 @@
         });
       });
       
+      // Table columns with matching data-col indexes
       const columns = ["Child", "Active", "Content Area", "Program", "Target", "SD", "Note", "Action"];
+      
       let thead = "<thead><tr>";
       columns.forEach((col, index) => {
         if (col !== "Action") {
@@ -996,8 +1027,11 @@
         }
       });
       thead += "</tr>";
+      
+      // Filter row
       thead += "<tr class='filterRow'>";
       columns.forEach((col, index) => {
+        // Skip filters for Active and Action columns
         if (col === "Active" || col === "Action") {
           thead += "<th></th>";
         } else {
@@ -1010,13 +1044,22 @@
       rows.forEach(row => {
         tbody += "<tr>";
         tbody += `<td>${row.child}</td>`;
-        tbody += `<td style="text-align: center;"><input type="checkbox" class="activeCheckbox" data-child="${row.child}" data-contentArea="${row.contentArea}" data-program="${row.program}" data-target="${row.target}" ${row.active ? "checked" : ""} /></td>`;
+        tbody += `<td style="text-align: center;"><input type="checkbox" class="activeCheckbox" 
+                         data-child="${row.child}" 
+                         data-contentArea="${row.contentArea}" 
+                         data-program="${row.program}" 
+                         data-target="${row.target}" 
+                         ${row.active ? "checked" : ""} /></td>`;
         tbody += `<td>${row.contentArea}</td>`;
         tbody += `<td>${row.program}</td>`;
         tbody += `<td>${row.target}</td>`;
         tbody += `<td>${row.sd}</td>`;
         tbody += `<td>${row.note}</td>`;
-        tbody += `<td><button class="tableEditBtn" data-child="${row.child}" data-contentArea="${row.contentArea}" data-program="${row.program}" data-target="${row.target}">Edit</button></td>`;
+        tbody += `<td><button class="tableEditBtn" 
+                         data-child="${row.child}" 
+                         data-contentArea="${row.contentArea}" 
+                         data-program="${row.program}" 
+                         data-target="${row.target}">Edit</button></td>`;
         tbody += "</tr>";
       });
       tbody += "</tbody>";
@@ -1031,6 +1074,7 @@
         });
       });
       
+      // Attach filterTable() to each input's keyup
       const filterInputs = dataTable.querySelectorAll("thead tr.filterRow input");
       filterInputs.forEach(input => {
         input.addEventListener("keyup", filterTable);
@@ -1065,6 +1109,38 @@
       });
     }
     
+    // Updated filterTable function using data-col to match columns
+    function filterTable() {
+      const filters = {};
+      // Collect filter text from each input
+      const inputs = dataTable.querySelectorAll("thead tr.filterRow input");
+      inputs.forEach(input => {
+        const colIndex = parseInt(input.getAttribute("data-col"), 10);
+        filters[colIndex] = input.value.toLowerCase();
+      });
+      
+      // For each row, check if all filters match
+      const tbody = dataTable.querySelector("tbody");
+      const rows = tbody.querySelectorAll("tr");
+      rows.forEach(row => {
+        let show = true;
+        // Loop through each filter entry
+        for (const [colIndexString, filterValue] of Object.entries(filters)) {
+          if (filterValue.trim() === "") continue; // Skip empty filters
+          
+          const colIndex = parseInt(colIndexString, 10);
+          const cellText = row.children[colIndex].textContent.toLowerCase();
+          
+          // If cell doesn't contain the filter, hide row
+          if (!cellText.includes(filterValue)) {
+            show = false;
+            break;
+          }
+        }
+        row.style.display = show ? "" : "none";
+      });
+    }
+    
     function sortTable(colIndex) {
       const tbody = dataTable.querySelector("tbody");
       const rows = Array.from(tbody.querySelectorAll("tr"));
@@ -1077,28 +1153,6 @@
       });
       sortOrder *= -1;
       rows.forEach(row => tbody.appendChild(row));
-    }
-    
-    function filterTable() {
-      const filters = {};
-      const inputs = dataTable.querySelectorAll("thead tr.filterRow input");
-      inputs.forEach(input => {
-        const col = input.getAttribute("data-col");
-        filters[col] = input.value.toLowerCase();
-      });
-      const tbody = dataTable.querySelector("tbody");
-      const rows = tbody.querySelectorAll("tr");
-      rows.forEach(row => {
-        let show = true;
-        for (let i = 1; i < row.children.length - 1; i++) {
-          const cellText = row.children[i].textContent.toLowerCase();
-          if (filters[i+1] && !cellText.includes(filters[i+1])) {
-            show = false;
-            break;
-          }
-        }
-        row.style.display = show ? "" : "none";
-      });
     }
     
     document.getElementById('toggleDataTableBtn').addEventListener("click", function() {
